@@ -170,6 +170,96 @@
       font-size: 19px;
       margin: 0 0 5px;
     }
+    .image-preview {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .image-preview-item {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      overflow: hidden;
+      background: var(--cream-dark);
+    }
+
+    .image-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .remove-preview {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 24px;
+      height: 24px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(165, 42, 42, 0.9);
+      color: white;
+      cursor: pointer;
+      line-height: 24px;
+      padding: 0;
+    }
+
+    .product-gallery {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: var(--cream-dark);
+      overflow: hidden;
+    }
+
+    .gallery-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .gallery-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.88);
+      color: var(--forest);
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .gallery-prev { right: 8px; }
+    .gallery-next { left: 8px; }
+
+    .gallery-counter {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(23,59,37,0.75);
+      color: white;
+      border-radius: 12px;
+      padding: 3px 9px;
+      font-size: 12px;
+      z-index: 2;
+    }
+
+    .admin-image-count {
+      color: var(--brown);
+      font-size: 13px;
+      margin-top: 3px;
+    }
+
     #adminPanel {
       display: none;
       margin-top: 40px;
@@ -387,12 +477,18 @@
         <label for="productPrice">السعر</label>
         <input type="number" id="productPrice" placeholder="مثال: 25" min="0" step="0.01">
 
-        <label for="productImage">رابط صورة المنتج</label>
-        <input type="text" id="productImage" placeholder="ضع رابط صورة المنتج">
+        <label for="productImages">صور المنتج</label>
+        <input
+          type="file"
+          id="productImages"
+          accept="image/*"
+          multiple
+        >
+        <div id="imagePreview" class="image-preview"></div>
 
         <div class="admin-buttons">
           <button class="add-button" id="saveProductButton" onclick="saveProduct()">إضافة المنتج</button>
-          <button class="cancel-admin-button" onclick="cancelEdit()">إلغاء</button>
+          <button class="cancel-admin-button" onclick="closeAdmin()">إلغاء</button>
         </div>
       </div>
 
@@ -423,10 +519,10 @@
     const WHATSAPP_NUMBER = "491234567890";
 
     let products = [
-      { id: 1, name: "منتج تجريبي 1", price: 25, image: "" },
-      { id: 2, name: "منتج تجريبي 2", price: 30, image: "" },
-      { id: 3, name: "منتج تجريبي 3", price: 35, image: "" },
-      { id: 4, name: "منتج تجريبي 4", price: 28, image: "" }
+      { id: 1, name: "منتج تجريبي 1", price: 25, images: [] },
+      { id: 2, name: "منتج تجريبي 2", price: 30, images: [] },
+      { id: 3, name: "منتج تجريبي 3", price: 35, images: [] },
+      { id: 4, name: "منتج تجريبي 4", price: 28, images: [] }
     ];
 
     let adminOpen = false;
@@ -434,11 +530,18 @@
     let logoClicks = 0;
     let logoClickTimer = null;
 
+    // الصور المختارة حالياً في نموذج المنتج.
+    let selectedImages = [];
+
     const logo = document.getElementById("logo");
     const passwordModal = document.getElementById("passwordModal");
     const adminPanel = document.getElementById("adminPanel");
     const adminPassword = document.getElementById("adminPassword");
     const passwordError = document.getElementById("passwordError");
+    const productImagesInput = document.getElementById("productImages");
+    const imagePreview = document.getElementById("imagePreview");
+
+    productImagesInput.addEventListener("change", handleImageSelection);
 
     logo.addEventListener("click", function () {
       logoClicks++;
@@ -545,17 +648,25 @@
         const card = document.createElement("div");
         card.className = "product-card";
 
+        const images = Array.isArray(product.images) ? product.images : [];
         let imageHTML = "";
 
-        if (product.image) {
+        if (images.length > 0) {
+          const galleryId = "gallery-" + product.id;
+
           imageHTML = `
-            <img
-              src="${escapeHTML(product.image)}"
-              alt="${escapeHTML(product.name)}"
-              class="product-image"
-              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-            >
-            <div class="product-image-placeholder" style="display:none;">لا توجد صورة</div>
+            <div class="product-gallery" id="${galleryId}">
+              <img
+                class="gallery-image"
+                src="${escapeHTML(images[0])}"
+                alt="${escapeHTML(product.name)}"
+              >
+              ${images.length > 1 ? `
+                <button class="gallery-arrow gallery-prev" onclick="changeGallery(${product.id}, -1)" aria-label="الصورة السابقة">›</button>
+                <button class="gallery-arrow gallery-next" onclick="changeGallery(${product.id}, 1)" aria-label="الصورة التالية">‹</button>
+                <div class="gallery-counter" id="counter-${product.id}">1 / ${images.length}</div>
+              ` : ""}
+            </div>
           `;
         } else {
           imageHTML = `<div class="product-image-placeholder">لا توجد صورة</div>`;
@@ -574,6 +685,43 @@
 
         grid.appendChild(card);
       });
+    }
+
+    function changeGallery(productId, direction) {
+      const product = products.find(function (item) {
+        return item.id === productId;
+      });
+
+      if (!product || !Array.isArray(product.images) || product.images.length < 2) {
+        return;
+      }
+
+      if (product.galleryIndex === undefined) {
+        product.galleryIndex = 0;
+      }
+
+      product.galleryIndex += direction;
+
+      if (product.galleryIndex < 0) {
+        product.galleryIndex = product.images.length - 1;
+      }
+
+      if (product.galleryIndex >= product.images.length) {
+        product.galleryIndex = 0;
+      }
+
+      const gallery = document.getElementById("gallery-" + productId);
+      const image = gallery ? gallery.querySelector(".gallery-image") : null;
+      const counter = document.getElementById("counter-" + productId);
+
+      if (image) {
+        image.src = product.images[product.galleryIndex];
+      }
+
+      if (counter) {
+        counter.textContent =
+          (product.galleryIndex + 1) + " / " + product.images.length;
+      }
     }
 
     function orderOnWhatsApp(productId) {
@@ -607,10 +755,15 @@
         const item = document.createElement("div");
         item.className = "admin-product-item";
 
+        const images = Array.isArray(product.images) ? product.images : [];
+
         item.innerHTML = `
           <div class="admin-product-info">
             <div class="admin-product-name">${escapeHTML(product.name)}</div>
             <div class="admin-product-price">${escapeHTML(String(product.price))} €</div>
+            <div class="admin-image-count">
+              ${images.length} ${images.length === 1 ? "صورة" : "صور"}
+            </div>
           </div>
           <div class="admin-product-actions">
             <button class="edit-button" onclick="editProduct(${product.id})">تعديل</button>
@@ -625,7 +778,6 @@
     function saveProduct() {
       const name = document.getElementById("productName").value.trim();
       const price = document.getElementById("productPrice").value;
-      const image = document.getElementById("productImage").value.trim();
 
       if (!name) {
         alert("يرجى إدخال اسم المنتج.");
@@ -645,7 +797,8 @@
         if (product) {
           product.name = name;
           product.price = Number(price);
-          product.image = image;
+          product.images = selectedImages.slice();
+          product.galleryIndex = 0;
         }
 
         editingProductId = null;
@@ -655,13 +808,85 @@
           id: Date.now(),
           name: name,
           price: Number(price),
-          image: image
+          images: selectedImages.slice(),
+          galleryIndex: 0
         });
       }
 
       clearProductForm();
       renderProducts();
       renderAdminProducts();
+    }
+
+    function handleImageSelection(event) {
+      const files = Array.from(event.target.files || []);
+
+      if (files.length === 0) {
+        return;
+      }
+
+      const remainingSlots = 6 - selectedImages.length;
+
+      if (files.length > remainingSlots) {
+        alert("يمكن إضافة حتى 6 صور لكل منتج.");
+      }
+
+      const filesToAdd = files.slice(0, Math.max(0, remainingSlots));
+
+      Promise.all(
+        filesToAdd.map(function (file) {
+          return new Promise(function (resolve, reject) {
+            if (!file.type.startsWith("image/")) {
+              reject(new Error("الملف ليس صورة."));
+              return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function () {
+              resolve(reader.result);
+            };
+
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        })
+      )
+      .then(function (newImages) {
+        selectedImages = selectedImages.concat(newImages);
+        renderImagePreview();
+        productImagesInput.value = "";
+      })
+      .catch(function () {
+        alert("حدث خطأ أثناء قراءة إحدى الصور.");
+        productImagesInput.value = "";
+      });
+    }
+
+    function renderImagePreview() {
+      imagePreview.innerHTML = "";
+
+      selectedImages.forEach(function (image, index) {
+        const item = document.createElement("div");
+        item.className = "image-preview-item";
+
+        item.innerHTML = `
+          <img src="${image}" alt="صورة المنتج ${index + 1}">
+          <button
+            type="button"
+            class="remove-preview"
+            onclick="removeSelectedImage(${index})"
+            aria-label="حذف الصورة"
+          >×</button>
+        `;
+
+        imagePreview.appendChild(item);
+      });
+    }
+
+    function removeSelectedImage(index) {
+      selectedImages.splice(index, 1);
+      renderImagePreview();
     }
 
     function editProduct(id) {
@@ -675,7 +900,13 @@
 
       document.getElementById("productName").value = product.name;
       document.getElementById("productPrice").value = product.price;
-      document.getElementById("productImage").value = product.image;
+
+      selectedImages = Array.isArray(product.images)
+        ? product.images.slice()
+        : [];
+
+      renderImagePreview();
+
       document.getElementById("saveProductButton").textContent = "حفظ التعديل";
       document.getElementById("productName").focus();
     }
@@ -724,7 +955,9 @@
     function clearProductForm() {
       document.getElementById("productName").value = "";
       document.getElementById("productPrice").value = "";
-      document.getElementById("productImage").value = "";
+      productImagesInput.value = "";
+      selectedImages = [];
+      renderImagePreview();
     }
 
     function escapeHTML(value) {
