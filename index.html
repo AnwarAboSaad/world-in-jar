@@ -676,7 +676,7 @@
           ${imageHTML}
           <div class="product-info">
             <h3 class="product-name">${escapeHTML(product.name)}</h3>
-            <div class="product-price">${escapeHTML(String(product.price))} €</div>
+            <div class="product-price">${escapeHTML(String(product.price))} $</div>
             <button class="whatsapp-button" onclick="orderOnWhatsApp(${product.id})">
               طلب عبر WhatsApp
             </button>
@@ -760,7 +760,7 @@
         item.innerHTML = `
           <div class="admin-product-info">
             <div class="admin-product-name">${escapeHTML(product.name)}</div>
-            <div class="admin-product-price">${escapeHTML(String(product.price))} €</div>
+            <div class="admin-product-price">${escapeHTML(String(product.price))} $</div>
             <div class="admin-image-count">
               ${images.length} ${images.length === 1 ? "صورة" : "صور"}
             </div>
