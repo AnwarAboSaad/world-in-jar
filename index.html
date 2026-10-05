@@ -1,263 +1,173 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>World in Jar</title>
 
   <style>
 
-    /* =========================================
-       COLORS
-    ========================================= */
-
     :root {
-
+      /* لون خلفية اللوغو */
       --cream: #FCF5ED;
-      --cream-dark: #eee5d7;
+      --cream-dark: #F3E9DC;
 
-      --forest: #173b25;
+      --forest: #173B25;
+      --olive: #78833A;
+      --brown: #8B6339;
 
-      --olive: #78833a;
+      --line: #D9CFBD;
+      --white: #FFFDF8;
 
-      --brown: #8b6339;
-
-      --line: #d9cfbd;
-
-      --white: #fffdf8;
-
+      --danger: #A52A2A;
     }
-
-
-    /* =========================================
-       GENERAL
-    ========================================= */
 
     * {
       box-sizing: border-box;
     }
 
-
     html {
       scroll-behavior: smooth;
     }
 
-
     body {
-
       margin: 0;
+      padding: 0;
 
       background: var(--cream);
-
       color: var(--forest);
 
       font-family:
         -apple-system,
         BlinkMacSystemFont,
         "Segoe UI",
+        Tahoma,
         Arial,
         sans-serif;
-
     }
 
+    /* الصفحة */
 
     .page {
-
       width: 100%;
-
       max-width: 1000px;
-
-      margin: auto;
-
-      padding: 12px 20px 40px;
-
+      margin: 0 auto;
+      padding: 20px 16px 50px;
     }
 
+    /* =========================
+       HEADER
+    ========================= */
 
-    /* =========================================
-       LOGO
-    ========================================= */
-
-    .top-header {
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: center;
-
-      width: 100%;
-
-      margin-bottom: 15px;
-
+    header {
+      text-align: center;
+      padding-top: 10px;
     }
-
 
     .logo-container {
-
-      width: 120px;
-
+      display: flex;
+      justify-content: center;
+      align-items: center;
       cursor: pointer;
 
       user-select: none;
-
       -webkit-user-select: none;
 
-      -webkit-tap-highlight-color: transparent;
-
+      margin-bottom: 12px;
     }
-
 
     .logo {
-
-      width: 120px;
-
-      height: auto;
-
       display: block;
 
-      border-radius: 10px;
+      width: 120px;
+      height: auto;
 
+      object-fit: contain;
+
+      cursor: pointer;
+
+      -webkit-tap-highlight-color: transparent;
     }
 
-
-    /* =========================================
+    /* =========================
        NAVIGATION
-    ========================================= */
+    ========================= */
 
-    .category-bar {
-
+    .navigation {
       display: flex;
-
-      flex-direction: row;
-
-      justify-content: space-between;
-
+      justify-content: center;
       align-items: center;
 
-      width: 100%;
+      gap: 35px;
 
-      border-top: 1px solid var(--line);
+      margin-top: 5px;
+      margin-bottom: 30px;
 
       border-bottom: 1px solid var(--line);
-
-      margin-bottom: 22px;
-
+      padding-bottom: 12px;
     }
 
-
-    .category-button {
-
-      flex: 1;
-
+    .nav-button {
       border: none;
-
-      border-radius: 0;
-
       background: transparent;
 
       color: var(--forest);
 
-      padding: 15px 10px;
-
-      font-size: 18px;
-
+      font-size: 16px;
       font-weight: 600;
 
       cursor: pointer;
 
-      position: relative;
+      padding: 6px 10px;
 
+      transition: 0.2s;
     }
 
-
-    .category-button.active {
-
+    .nav-button:hover {
       color: var(--olive);
-
     }
 
-
-    .category-button.active::after {
-
-      content: "";
-
-      position: absolute;
-
-      bottom: 0;
-
-      right: 20%;
-
-      left: 20%;
-
-      height: 3px;
-
-      background: var(--olive);
-
-      border-radius: 5px;
-
+    .nav-button.active {
+      color: var(--olive);
     }
 
+    /* =========================
+       SECTIONS
+    ========================= */
 
-    /* =========================================
-       CONTENT
-    ========================================= */
-
-    .content-section {
-
+    .section {
       display: none;
-
     }
 
-
-    .content-section.active {
-
+    .section.active {
       display: block;
-
     }
-
 
     .section-title {
-
-      font-size: 24px;
-
-      font-weight: 700;
-
-      margin-bottom: 18px;
+      text-align: center;
 
       color: var(--forest);
 
+      font-size: 25px;
+
+      margin-top: 10px;
+      margin-bottom: 25px;
     }
 
-
-    /* =========================================
+    /* =========================
        PRODUCTS GRID
-    ========================================= */
+    ========================= */
 
     .products-grid {
-
       display: grid;
 
-      grid-template-columns:
-        repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
 
       gap: 18px;
-
     }
 
-
-    /* =========================================
-       PRODUCT CARD
-    ========================================= */
-
     .product-card {
-
       background: var(--white);
 
       border: 1px solid var(--line);
@@ -267,230 +177,172 @@
       overflow: hidden;
 
       box-shadow:
-        0 2px 8px rgba(30, 50, 35, 0.05);
+        0 5px 15px rgba(23, 59, 37, 0.06);
 
+      transition:
+        transform 0.2s,
+        box-shadow 0.2s;
     }
 
+    .product-card:hover {
+      transform: translateY(-2px);
+
+      box-shadow:
+        0 8px 20px rgba(23, 59, 37, 0.10);
+    }
 
     .product-image {
-
       width: 100%;
-
       aspect-ratio: 1 / 1;
-
-      background: var(--cream-dark);
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: center;
-
-      color: var(--olive);
-
-      overflow: hidden;
-
-    }
-
-
-    .product-image img {
-
-      width: 100%;
-
-      height: 100%;
 
       object-fit: cover;
 
       display: block;
 
+      background: var(--cream-dark);
     }
 
+    .product-image-placeholder {
+      width: 100%;
+      aspect-ratio: 1 / 1;
 
-    .product-placeholder {
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
-      font-size: 15px;
-
-      color: var(--olive);
-
-    }
-
-
-    .product-info {
-
-      padding: 14px;
-
-    }
-
-
-    .product-name {
-
-      font-size: 18px;
-
-      font-weight: 650;
-
-      color: var(--forest);
-
-      margin-bottom: 7px;
-
-    }
-
-
-    .product-price {
-
-      font-size: 16px;
-
-      font-weight: 700;
+      background: var(--cream-dark);
 
       color: var(--brown);
 
-      margin-bottom: 13px;
-
+      font-size: 15px;
     }
 
+    .product-info {
+      padding: 14px;
+    }
 
-    /* =========================================
-       WHATSAPP
-    ========================================= */
+    .product-name {
+      color: var(--forest);
+
+      font-size: 17px;
+      font-weight: 600;
+
+      margin: 0 0 8px;
+    }
+
+    .product-price {
+      color: var(--brown);
+
+      font-size: 16px;
+      font-weight: 600;
+
+      margin-bottom: 13px;
+    }
 
     .whatsapp-button {
-
       width: 100%;
 
-      min-height: 45px;
-
       border: none;
+      border-radius: 9px;
 
-      border-radius: 10px;
+      padding: 11px 10px;
 
-      background: var(--olive);
-
+      background: var(--forest);
       color: white;
 
-      font-size: 15px;
+      font-size: 14px;
+      font-weight: 600;
 
       cursor: pointer;
 
-      transition: background 0.2s ease;
-
+      transition: 0.2s;
     }
-
 
     .whatsapp-button:hover {
-
-      background: var(--forest);
-
+      background: var(--olive);
     }
 
-
-    /* =========================================
-       CARE INSTRUCTIONS
-    ========================================= */
+    /* =========================
+       CARE SECTION
+    ========================= */
 
     .care-box {
-
       background: var(--white);
 
       border: 1px solid var(--line);
 
       border-radius: 16px;
 
-      padding: 20px;
+      padding: 24px;
 
       line-height: 1.9;
 
-      font-size: 16px;
-
+      box-shadow:
+        0 5px 15px rgba(23, 59, 37, 0.05);
     }
-
 
     .care-box h3 {
-
-      margin-top: 0;
-
       color: var(--forest);
 
-    }
+      margin-top: 0;
+      margin-bottom: 18px;
 
+      font-size: 21px;
+    }
 
     .care-box ul {
-
-      margin: 10px 0 0;
-
-      padding-right: 20px;
-
+      padding-right: 22px;
+      margin-bottom: 0;
     }
-
 
     .care-box li {
-
-      margin-bottom: 8px;
-
+      margin-bottom: 10px;
     }
 
+    /* =========================
+       ADMIN PANEL
+    ========================= */
 
-    /* =========================================
-       SECRET ADMIN PANEL
-    ========================================= */
-
-    .admin-panel {
-
+    #adminPanel {
       display: none;
+
+      margin-top: 40px;
 
       background: var(--white);
 
       border: 1px solid var(--line);
 
-      border-radius: 16px;
+      border-radius: 18px;
 
       padding: 20px;
 
-      margin-bottom: 20px;
-
+      box-shadow:
+        0 8px 25px rgba(23, 59, 37, 0.08);
     }
-
-
-    .admin-panel.open {
-
-      display: block;
-
-    }
-
 
     .admin-title {
+      text-align: center;
 
-      font-size: 21px;
+      color: var(--forest);
 
-      font-weight: 700;
-
-      margin-bottom: 15px;
-
+      margin-top: 0;
+      margin-bottom: 20px;
     }
 
-
-    .form {
-
+    .admin-form {
       display: grid;
 
       gap: 12px;
-
     }
 
+    .admin-form label {
+      font-size: 14px;
+      font-weight: 600;
 
-    .form-group label {
-
-      display: block;
-
-      font-size: 13px;
-
-      margin-bottom: 5px;
-
-      color: #66705b;
-
+      color: var(--forest);
     }
 
-
-    .form-group input {
-
+    .admin-form input {
       width: 100%;
 
       padding: 12px;
@@ -499,1601 +351,1330 @@
 
       border-radius: 9px;
 
-      background: #fffdf8;
+      background: #fff;
 
-      color: var(--forest);
-
-      font-size: 16px;
+      font-size: 15px;
 
       outline: none;
-
     }
 
-
-    .form-group input:focus {
-
+    .admin-form input:focus {
       border-color: var(--olive);
-
     }
 
-
-    .form-actions {
-
+    .admin-buttons {
       display: flex;
 
-      gap: 8px;
+      gap: 10px;
 
-      flex-wrap: wrap;
-
+      margin-top: 5px;
     }
 
-
-    .save-button {
-
-      background: var(--forest);
-
-      color: white;
+    .admin-buttons button {
+      flex: 1;
 
       border: none;
 
       border-radius: 9px;
 
-      padding: 11px 18px;
+      padding: 12px;
 
       cursor: pointer;
 
-      font-size: 14px;
-
+      font-size: 15px;
+      font-weight: 600;
     }
 
+    .add-button {
+      background: var(--forest);
+      color: white;
+    }
 
-    .cancel-button {
+    .cancel-admin-button {
+      background: var(--brown);
+      color: white;
+    }
 
-      background: var(--cream-dark);
+    .edit-button {
+      background: var(--olive);
+      color: white;
 
-      color: var(--forest);
+      border: none;
 
-      border: 1px solid var(--line);
+      border-radius: 7px;
 
-      border-radius: 9px;
-
-      padding: 11px 18px;
+      padding: 8px 12px;
 
       cursor: pointer;
-
-      font-size: 14px;
-
     }
 
+    .delete-button {
+      background: var(--danger);
+      color: white;
 
-    /* =========================================
-       ADMIN PRODUCT LIST
-    ========================================= */
+      border: none;
 
-    .admin-list {
+      border-radius: 7px;
 
-      display: grid;
+      padding: 8px 12px;
 
-      gap: 8px;
-
-      margin-top: 20px;
-
+      cursor: pointer;
     }
 
+    /* قائمة المنتجات داخل الإدارة */
 
-    .admin-item {
+    .admin-products {
+      margin-top: 25px;
+    }
 
+    .admin-product-item {
       display: flex;
 
       align-items: center;
 
       justify-content: space-between;
 
-      gap: 10px;
+      gap: 12px;
 
-      padding: 11px;
+      padding: 12px 0;
+
+      border-bottom: 1px solid var(--line);
+    }
+
+    .admin-product-info {
+      flex: 1;
+    }
+
+    .admin-product-name {
+      font-weight: 600;
+
+      color: var(--forest);
+
+      margin-bottom: 4px;
+    }
+
+    .admin-product-price {
+      color: var(--brown);
+
+      font-size: 14px;
+    }
+
+    .admin-product-actions {
+      display: flex;
+
+      gap: 7px;
+    }
+
+    /* =========================
+       PASSWORD MODAL
+    ========================= */
+
+    .modal-overlay {
+      display: none;
+
+      position: fixed;
+
+      inset: 0;
+
+      width: 100%;
+      height: 100%;
+
+      background: rgba(0, 0, 0, 0.45);
+
+      z-index: 9999;
+
+      align-items: center;
+      justify-content: center;
+
+      padding: 20px;
+    }
+
+    .password-box {
+      width: 100%;
+      max-width: 360px;
+
+      background: var(--cream);
+
+      border-radius: 18px;
+
+      padding: 25px;
+
+      text-align: center;
+
+      box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.20);
+    }
+
+    .password-box h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+
+      color: var(--forest);
+
+      font-size: 21px;
+    }
+
+    .password-box p {
+      color: #555;
+
+      margin-top: 0;
+      margin-bottom: 18px;
+    }
+
+    .password-box input {
+      width: 100%;
+
+      padding: 13px;
 
       border: 1px solid var(--line);
 
       border-radius: 10px;
 
-    }
-
-
-    .admin-item-info {
-
-      min-width: 0;
-
-    }
-
-
-    .admin-item-name {
-
-      font-weight: 650;
-
-    }
-
-
-    .admin-item-price {
-
-      font-size: 13px;
-
-      color: var(--brown);
-
-      margin-top: 3px;
-
-    }
-
-
-    .admin-actions {
-
-      display: flex;
-
-      gap: 6px;
-
-      flex-wrap: wrap;
-
-    }
-
-
-    .edit-button,
-    .delete-button {
-
-      border: 1px solid var(--line);
-
       background: var(--white);
-
-      border-radius: 8px;
-
-      padding: 8px 11px;
-
-      cursor: pointer;
-
-      font-size: 13px;
-
-    }
-
-
-    .delete-button {
-
-      color: #8b3d32;
-
-    }
-
-
-    /* =========================================
-       SECRET ADMIN MESSAGE
-    ========================================= */
-
-    .secret-message {
-
-      display: none;
 
       text-align: center;
 
-      color: var(--olive);
+      font-size: 18px;
+
+      outline: none;
+    }
+
+    .password-box input:focus {
+      border-color: var(--olive);
+    }
+
+    .password-buttons {
+      display: flex;
+
+      gap: 10px;
+
+      margin-top: 15px;
+    }
+
+    .password-buttons button {
+      flex: 1;
+
+      border: none;
+
+      border-radius: 10px;
+
+      padding: 12px;
+
+      background: var(--forest);
+
+      color: white;
+
+      cursor: pointer;
+
+      font-size: 15px;
+
+      font-weight: 600;
+    }
+
+    .password-buttons .cancel-btn {
+      background: var(--brown);
+    }
+
+    .password-error {
+      color: var(--danger);
+
+      font-size: 14px;
+
+      min-height: 20px;
+
+      margin-top: 8px;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    footer {
+      text-align: center;
+
+      margin-top: 45px;
+
+      color: var(--brown);
 
       font-size: 13px;
-
-      margin-bottom: 10px;
-
     }
 
-
-    /* =========================================
+    /* =========================
        MOBILE
-    ========================================= */
-
-    @media (max-width: 600px) {
-
-      .page {
-
-        padding:
-          10px
-          12px
-          30px;
-
-      }
-
-
-      .logo-container,
-      .logo {
-
-        width: 120px;
-
-      }
-
-
-      .category-button {
-
-        font-size: 16px;
-
-        padding:
-          14px
-          5px;
-
-      }
-
-
-      .products-grid {
-
-        grid-template-columns:
-          repeat(2, minmax(0, 1fr));
-
-        gap: 12px;
-
-      }
-
-
-      .product-info {
-
-        padding: 11px;
-
-      }
-
-
-      .product-name {
-
-        font-size: 16px;
-
-      }
-
-
-      .product-price {
-
-        font-size: 15px;
-
-      }
-
-
-      .whatsapp-button {
-
-        font-size: 14px;
-
-      }
-
-    }
-
+    ========================= */
 
     @media (max-width: 380px) {
 
-      .logo-container,
-      .logo {
-
-        width: 105px;
-
+      .page {
+        padding-left: 12px;
+        padding-right: 12px;
       }
 
+      .logo {
+        width: 105px;
+      }
+
+      .products-grid {
+        gap: 12px;
+      }
+
+      .product-info {
+        padding: 11px;
+      }
 
       .product-name {
-
         font-size: 15px;
-
       }
 
+      .product-price {
+        font-size: 14px;
+      }
+
+      .whatsapp-button {
+        font-size: 13px;
+      }
+
+      .navigation {
+        gap: 20px;
+      }
     }
 
   </style>
-
 </head>
 
 
 <body>
 
+  <div class="page">
 
-<div class="page">
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <header>
+
+      <div class="logo-container">
+
+        <!-- اللوغو موجود بجانب index.html -->
+        <img
+          src="logo.jpg"
+          alt="World in Jar"
+          class="logo"
+          id="logo"
+        >
+
+      </div>
+
+      <nav class="navigation">
+
+        <button
+          class="nav-button active"
+          id="productsTab"
+          onclick="showSection('products')"
+        >
+          المنتجات
+        </button>
+
+        <button
+          class="nav-button"
+          id="careTab"
+          onclick="showSection('care')"
+        >
+          تعليمات العناية
+        </button>
+
+      </nav>
+
+    </header>
 
 
-  <!-- =====================================
-       HEADER
-  ====================================== -->
+    <!-- =========================
+         PRODUCTS
+    ========================= -->
 
-  <header class="top-header">
+    <section
+      id="productsSection"
+      class="section active"
+    >
 
-    <div
-      id="secretLogo"
-      class="logo-container">
+      <h2 class="section-title">
+        منتجاتنا
+      </h2>
 
-      <!--
-        مهم:
-        logo.jpg يجب أن يكون بجانب index.html
-      -->
+      <div
+        id="productsGrid"
+        class="products-grid"
+      ></div>
 
-      <img
-        class="logo"
-        src="logo.jpg"
-        alt="World in Jar">
-
-    </div>
-
-  </header>
+    </section>
 
 
-  <!-- =====================================
-       SECRET MESSAGE
-  ====================================== -->
+    <!-- =========================
+         CARE
+    ========================= -->
 
-  <div
-    id="secretMessage"
-    class="secret-message">
+    <section
+      id="careSection"
+      class="section"
+    >
 
-    وضع الإدارة
+      <h2 class="section-title">
+        تعليمات العناية
+      </h2>
+
+      <div class="care-box">
+
+        <h3>
+          كيفية العناية بالـ Terrarium 🌿
+        </h3>
+
+        <ul>
+
+          <li>
+            ضع الـ Terrarium في مكان مضيء،
+            ولكن بعيداً عن أشعة الشمس المباشرة.
+          </li>
+
+          <li>
+            لا تقم بري النباتات بشكل زائد.
+            الرطوبة الموجودة داخل الوعاء غالباً كافية.
+          </li>
+
+          <li>
+            إذا لاحظت وجود كمية كبيرة جداً من قطرات الماء
+            على الزجاج، افتح الغطاء لفترة قصيرة للتهوية.
+          </li>
+
+          <li>
+            تجنب وضع الـ Terrarium بالقرب من مصادر الحرارة
+            أو أجهزة التدفئة.
+          </li>
+
+          <li>
+            حاول عدم تحريك النباتات أو الديكورات
+            الموجودة داخل الوعاء دون الحاجة.
+          </li>
+
+        </ul>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         ADMIN PANEL
+    ========================= -->
+
+    <section id="adminPanel">
+
+      <h2 class="admin-title">
+        وضع الإدارة
+      </h2>
+
+      <div class="admin-form">
+
+        <label for="productName">
+          اسم المنتج
+        </label>
+
+        <input
+          type="text"
+          id="productName"
+          placeholder="مثال: Terrarium صغير"
+        >
+
+
+        <label for="productPrice">
+          السعر
+        </label>
+
+        <input
+          type="number"
+          id="productPrice"
+          placeholder="مثال: 25"
+          min="0"
+          step="0.01"
+        >
+
+
+        <label for="productImage">
+          رابط صورة المنتج
+        </label>
+
+        <input
+          type="text"
+          id="productImage"
+          placeholder="ضع رابط صورة المنتج"
+        >
+
+
+        <div class="admin-buttons">
+
+          <button
+            class="add-button"
+            id="saveProductButton"
+            onclick="saveProduct()"
+          >
+            إضافة المنتج
+          </button>
+
+          <button
+            class="cancel-admin-button"
+            onclick="cancelEdit()"
+          >
+            إلغاء
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="adminProducts"
+        class="admin-products"
+      ></div>
+
+    </section>
+
+
+    <footer>
+      World in Jar
+    </footer>
 
   </div>
 
 
-  <!-- =====================================
-       SECRET ADMIN PANEL
-  ====================================== -->
-
-  <section
-    id="adminPanel"
-    class="admin-panel">
-
-
-    <div class="admin-title">
-
-      إدارة المنتجات
-
-    </div>
-
-
-    <form
-      id="productForm"
-      class="form">
-
-
-      <input
-        id="editId"
-        type="hidden">
-
-
-      <!-- PRODUCT NAME -->
-
-      <div class="form-group">
-
-        <label for="productName">
-
-          اسم المنتج
-
-        </label>
-
-        <input
-          id="productName"
-          type="text"
-          placeholder="مثلاً: Mini Forest"
-          required>
-
-      </div>
-
-
-      <!-- PRICE -->
-
-      <div class="form-group">
-
-        <label for="productPrice">
-
-          السعر (€)
-
-        </label>
-
-        <input
-          id="productPrice"
-          type="number"
-          min="0"
-          step="0.01"
-          placeholder="25"
-          required>
-
-      </div>
-
-
-      <!-- IMAGE -->
-
-      <div class="form-group">
-
-        <label for="productImage">
-
-          رابط صورة المنتج
-
-        </label>
-
-        <input
-          id="productImage"
-          type="text"
-          placeholder="https://...">
-
-      </div>
-
-
-      <!-- BUTTONS -->
-
-      <div class="form-actions">
-
-        <button
-          class="save-button"
-          type="submit">
-
-          حفظ المنتج
-
-        </button>
-
-
-        <button
-          id="cancelButton"
-          class="cancel-button"
-          type="button">
-
-          إلغاء
-
-        </button>
-
-      </div>
-
-
-    </form>
-
-
-    <!-- ADMIN PRODUCTS -->
-
-    <div
-      id="adminList"
-      class="admin-list">
-    </div>
-
-
-  </section>
-
-
-  <!-- =====================================
-       NAVIGATION
-  ====================================== -->
-
-  <nav class="category-bar">
-
-
-    <!-- RIGHT -->
-
-    <button
-      id="productsTab"
-      class="category-button active"
-      type="button">
-
-      المنتجات
-
-    </button>
-
-
-    <!-- LEFT -->
-
-    <button
-      id="careTab"
-      class="category-button"
-      type="button">
-
-      تعليمات العناية
-
-    </button>
-
-
-  </nav>
-
-
-  <!-- =====================================
-       PRODUCTS
-  ====================================== -->
-
-  <section
-    id="productsSection"
-    class="content-section active">
-
-
-    <div
-      id="productsGrid"
-      class="products-grid">
-    </div>
-
-
-  </section>
-
-
-  <!-- =====================================
-       CARE
-  ====================================== -->
-
-  <section
-    id="careSection"
-    class="content-section">
-
-
-    <div class="section-title">
-
-      تعليمات العناية
-
-    </div>
-
-
-    <div class="care-box">
-
+  <!-- =========================
+       PASSWORD MODAL
+  ========================= -->
+
+  <div
+    id="passwordModal"
+    class="modal-overlay"
+  >
+
+    <div class="password-box">
 
       <h3>
-
-        كيفية العناية بالـ Terrarium 🌿
-
+        وضع الإدارة
       </h3>
 
-
-      <ul>
-
-
-        <li>
-
-          ضع الوعاء في مكان مضاء بشكل جيد
-          بعيدًا عن أشعة الشمس المباشرة.
-
-        </li>
-
-
-        <li>
-
-          لا تكثر من الماء.
-          يحتاج النبات إلى كمية قليلة فقط.
-
-        </li>
-
-
-        <li>
-
-          إذا ظهرت قطرات ماء كثيرة على الزجاج،
-          افتح الغطاء لفترة قصيرة للتهوية.
-
-        </li>
-
-
-        <li>
-
-          تجنب وضع الـ Terrarium بالقرب
-          من مصادر الحرارة.
-
-        </li>
-
-
-        <li>
-
-          لا تحرك النباتات أو الديكور الداخلي
-          إلا عند الضرورة.
-
-        </li>
-
-
-      </ul>
-
-
-    </div>
-
-
-  </section>
-
-
-</div>
-
-
-<script>
-
-
-/* =====================================================
-   WHATSAPP NUMBER
-
-   ضع رقم WhatsApp الحقيقي هنا.
-
-   مثال:
-
-   491701234567
-
-   بدون +
-   بدون مسافات
-   بدون 00
-===================================================== */
-
-const WHATSAPP_NUMBER =
-  "491234567890";
-
-
-
-/* =====================================================
-   TEMPORARY PRODUCTS
-
-   هذه البيانات مؤقتة.
-
-   لاحقًا سنضع Firebase هنا.
-===================================================== */
-
-let products = [
-
-
-  {
-
-    id: 1,
-
-    name: "منتج تجريبي 1",
-
-    price: 25,
-
-    image: ""
-
-  },
-
-
-  {
-
-    id: 2,
-
-    name: "منتج تجريبي 2",
-
-    price: 30,
-
-    image: ""
-
-  },
-
-
-  {
-
-    id: 3,
-
-    name: "منتج تجريبي 3",
-
-    price: 35,
-
-    image: ""
-
-  },
-
-
-  {
-
-    id: 4,
-
-    name: "منتج تجريبي 4",
-
-    price: 28,
-
-    image: ""
-
-  }
-
-
-];
-
-
-
-/* =====================================================
-   ELEMENTS
-===================================================== */
-
-const secretLogo =
-  document.getElementById(
-    "secretLogo"
-  );
-
-
-const adminPanel =
-  document.getElementById(
-    "adminPanel"
-  );
-
-
-const secretMessage =
-  document.getElementById(
-    "secretMessage"
-  );
-
-
-const productForm =
-  document.getElementById(
-    "productForm"
-  );
-
-
-const adminList =
-  document.getElementById(
-    "adminList"
-  );
-
-
-const editId =
-  document.getElementById(
-    "editId"
-  );
-
-
-const productName =
-  document.getElementById(
-    "productName"
-  );
-
-
-const productPrice =
-  document.getElementById(
-    "productPrice"
-  );
-
-
-const productImage =
-  document.getElementById(
-    "productImage"
-  );
-
-
-const cancelButton =
-  document.getElementById(
-    "cancelButton"
-  );
-
-
-const productsGrid =
-  document.getElementById(
-    "productsGrid"
-  );
-
-
-const productsTab =
-  document.getElementById(
-    "productsTab"
-  );
-
-
-const careTab =
-  document.getElementById(
-    "careTab"
-  );
-
-
-const productsSection =
-  document.getElementById(
-    "productsSection"
-  );
-
-
-const careSection =
-  document.getElementById(
-    "careSection"
-  );
-
-
-
-/* =====================================================
-   SECRET LOGO CLICK SYSTEM
-
-   5 ضغطات متتالية على اللوغو
-   تفتح لوحة الإدارة.
-
-   المهلة بين الضغطات:
-   1500 ميلي ثانية.
-===================================================== */
-
-let logoClicks = 0;
-
-let logoClickTimer = null;
-
-
-secretLogo.addEventListener(
-  "click",
-  function() {
-
-
-    logoClicks++;
-
-
-    clearTimeout(
-      logoClickTimer
-    );
-
-
-    logoClickTimer =
-      setTimeout(
-        function() {
-
-          logoClicks = 0;
-
-        },
-        1500
-      );
-
-
-    if (logoClicks >= 5) {
-
-
-      logoClicks = 0;
-
-
-      clearTimeout(
-        logoClickTimer
-      );
-
-
-      adminPanel.classList.add(
-        "open"
-      );
-
-
-      secretMessage.style.display =
-        "block";
-
-
-      adminPanel.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-
-
-    }
-
-  }
-);
-
-
-
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
-
-function escapeHTML(value) {
-
-  return String(
-    value ?? ""
-  ).replace(
-    /[&<>'"]/g,
-    function(char) {
-
-      return {
-
-        "&": "&amp;",
-
-        "<": "&lt;",
-
-        ">": "&gt;",
-
-        "'": "&#39;",
-
-        '"': "&quot;"
-
-      }[char];
-
-    }
-  );
-
-}
-
-
-
-/* =====================================================
-   RENDER PRODUCTS
-===================================================== */
-
-function renderProducts() {
-
-
-  productsGrid.innerHTML = "";
-
-
-  if (
-    products.length === 0
-  ) {
-
-
-    productsGrid.innerHTML = `
+      <p>
+        أدخل كلمة السر للمتابعة
+      </p>
+
+      <input
+        type="password"
+        id="adminPassword"
+        placeholder="كلمة السر"
+        inputmode="numeric"
+        autocomplete="off"
+      >
 
       <div
-        style="
-          grid-column:1/-1;
-          text-align:center;
-          padding:40px 10px;
-          color:#78833a;
-        ">
+        id="passwordError"
+        class="password-error"
+      ></div>
 
-        لا توجد منتجات حاليًا
+      <div class="password-buttons">
+
+        <button
+          onclick="checkAdminPassword()"
+        >
+          دخول
+        </button>
+
+        <button
+          class="cancel-btn"
+          onclick="closeAdmin()"
+        >
+          إلغاء
+        </button>
 
       </div>
 
-    `;
+    </div>
+
+  </div>
 
 
-    return;
+  <script>
 
-  }
+    /* =====================================
+       إعدادات الموقع
+    ===================================== */
 
+    // كلمة سر الإدارة المؤقتة
+    const ADMIN_PASSWORD = "1100";
 
-
-  products.forEach(
-    function(product) {
-
-
-      const card =
-        document.createElement(
-          "article"
-        );
+    // رقم WhatsApp
+    // استبدله لاحقاً برقمك الحقيقي بدون +
+    const WHATSAPP_NUMBER = "491234567890";
 
 
-      card.className =
-        "product-card";
+    /* =====================================
+       المنتجات
+    ===================================== */
+
+    let products = [
+
+      {
+        id: 1,
+        name: "منتج تجريبي 1",
+        price: 25,
+        image: ""
+      },
+
+      {
+        id: 2,
+        name: "منتج تجريبي 2",
+        price: 30,
+        image: ""
+      },
+
+      {
+        id: 3,
+        name: "منتج تجريبي 3",
+        price: 35,
+        image: ""
+      },
+
+      {
+        id: 4,
+        name: "منتج تجريبي 4",
+        price: 28,
+        image: ""
+      }
+
+    ];
 
 
+    /* =====================================
+       متغيرات الإدارة
+    ===================================== */
 
-      let imageHTML = "";
+    let adminOpen = false;
+
+    let editingProductId = null;
+
+    let logoClicks = 0;
+
+    let logoClickTimer = null;
 
 
+    /* =====================================
+       عناصر الصفحة
+    ===================================== */
 
-      if (
-        product.image
-      ) {
+    const logo = document.getElementById("logo");
+
+    const passwordModal =
+      document.getElementById("passwordModal");
+
+    const adminPanel =
+      document.getElementById("adminPanel");
+
+    const adminPassword =
+      document.getElementById("adminPassword");
+
+    const passwordError =
+      document.getElementById("passwordError");
 
 
-        imageHTML = `
+    /* =====================================
+       الضغط على اللوغو
+    ===================================== */
 
-          <img
+    logo.addEventListener("click", function () {
 
-            src="${escapeHTML(
-              product.image
-            )}"
+      logoClicks++;
 
-            alt="${escapeHTML(
-              product.name
-            )}"
+      clearTimeout(logoClickTimer);
 
-            onerror="
-              this.style.display='none';
-              this.parentElement.innerHTML=
-              '<div class=\\'product-placeholder\\'>
-              صورة المنتج
-              </div>';
-            "
+      logoClickTimer = setTimeout(function () {
 
-          >
+        logoClicks = 0;
 
-        `;
+      }, 1500);
+
+
+      // بعد 5 ضغطات
+      if (logoClicks === 5) {
+
+        logoClicks = 0;
+
+        clearTimeout(logoClickTimer);
+
+
+        // إذا الإدارة مفتوحة
+        // يتم إغلاقها
+        if (adminOpen) {
+
+          closeAdmin();
+
+          return;
+        }
+
+
+        // إذا الإدارة مغلقة
+        // تظهر كلمة السر
+        openPasswordModal();
 
       }
 
+    });
+
+
+    /* =====================================
+       فتح نافذة كلمة السر
+    ===================================== */
+
+    function openPasswordModal() {
+
+      passwordModal.style.display = "flex";
+
+      adminPassword.value = "";
+
+      passwordError.textContent = "";
+
+
+      setTimeout(function () {
+
+        adminPassword.focus();
+
+      }, 100);
+
+    }
+
+
+    /* =====================================
+       التحقق من كلمة السر
+    ===================================== */
+
+    function checkAdminPassword() {
+
+      const password =
+        adminPassword.value.trim();
+
+
+      if (password === ADMIN_PASSWORD) {
+
+        // إغلاق نافذة كلمة السر
+        passwordModal.style.display = "none";
+
+
+        // فتح الإدارة
+        adminOpen = true;
+
+        adminPanel.style.display = "block";
+
+
+        // عرض المنتجات في لوحة الإدارة
+        renderAdminProducts();
+
+
+        // الانتقال إلى لوحة الإدارة
+        setTimeout(function () {
+
+          adminPanel.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+
+        }, 100);
+
+      }
 
       else {
 
+        passwordError.textContent =
+          "كلمة السر غير صحيحة";
 
-        imageHTML = `
+        adminPassword.value = "";
 
-          <div
-            class="product-placeholder">
+        adminPassword.focus();
 
-            صورة المنتج
+      }
+
+    }
+
+
+    /* =====================================
+       زر Enter داخل كلمة السر
+    ===================================== */
+
+    adminPassword.addEventListener(
+      "keydown",
+      function (event) {
+
+        if (event.key === "Enter") {
+
+          checkAdminPassword();
+
+        }
+
+      }
+    );
+
+
+    /* =====================================
+       إغلاق الإدارة
+    ===================================== */
+
+    function closeAdmin() {
+
+      // إغلاق نافذة كلمة السر
+      passwordModal.style.display = "none";
+
+
+      // إغلاق لوحة الإدارة
+      adminOpen = false;
+
+      adminPanel.style.display = "none";
+
+
+      // إعادة ضبط البيانات
+      adminPassword.value = "";
+
+      passwordError.textContent = "";
+
+
+      // إلغاء وضع التعديل
+      cancelEdit();
+
+    }
+
+
+    /* =====================================
+       التبديل بين الأقسام
+    ===================================== */
+
+    function showSection(section) {
+
+      const productsSection =
+        document.getElementById("productsSection");
+
+      const careSection =
+        document.getElementById("careSection");
+
+      const productsTab =
+        document.getElementById("productsTab");
+
+      const careTab =
+        document.getElementById("careTab");
+
+
+      if (section === "products") {
+
+        productsSection.classList.add("active");
+        careSection.classList.remove("active");
+
+        productsTab.classList.add("active");
+        careTab.classList.remove("active");
+
+      }
+
+
+      if (section === "care") {
+
+        productsSection.classList.remove("active");
+        careSection.classList.add("active");
+
+        productsTab.classList.remove("active");
+        careTab.classList.add("active");
+
+      }
+
+    }
+
+
+    /* =====================================
+       عرض المنتجات
+    ===================================== */
+
+    function renderProducts() {
+
+      const grid =
+        document.getElementById("productsGrid");
+
+      grid.innerHTML = "";
+
+
+      if (products.length === 0) {
+
+        grid.innerHTML = `
+          <div style="
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px 10px;
+            color: #8B6339;
+          ">
+            لا توجد منتجات حالياً
+          </div>
+        `;
+
+        return;
+      }
+
+
+      products.forEach(function (product) {
+
+        const card =
+          document.createElement("div");
+
+        card.className = "product-card";
+
+
+        let imageHTML = "";
+
+
+        if (product.image) {
+
+          imageHTML = `
+            <img
+              src="${escapeHTML(product.image)}"
+              alt="${escapeHTML(product.name)}"
+              class="product-image"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+            >
+
+            <div
+              class="product-image-placeholder"
+              style="display:none;"
+            >
+              لا توجد صورة
+            </div>
+          `;
+
+        }
+
+        else {
+
+          imageHTML = `
+            <div class="product-image-placeholder">
+              لا توجد صورة
+            </div>
+          `;
+
+        }
+
+
+        card.innerHTML = `
+
+          ${imageHTML}
+
+          <div class="product-info">
+
+            <h3 class="product-name">
+              ${escapeHTML(product.name)}
+            </h3>
+
+            <div class="product-price">
+              ${escapeHTML(String(product.price))} €
+            </div>
+
+            <button
+              class="whatsapp-button"
+              onclick="orderOnWhatsApp(${product.id})"
+            >
+              طلب عبر WhatsApp
+            </button>
 
           </div>
 
         `;
 
+
+        grid.appendChild(card);
+
+      });
+
+    }
+
+
+    /* =====================================
+       WhatsApp
+    ===================================== */
+
+    function orderOnWhatsApp(productId) {
+
+      const product =
+        products.find(function (item) {
+
+          return item.id === productId;
+
+        });
+
+
+      if (!product) {
+        return;
       }
 
 
-
-      card.innerHTML = `
-
-
-        <div
-          class="product-image">
-
-          ${imageHTML}
-
-        </div>
+      const message =
+        "مرحباً، أريد طلب المنتج: " +
+        product.name;
 
 
-
-        <div
-          class="product-info">
-
-
-          <div
-            class="product-name">
-
-            ${escapeHTML(
-              product.name
-            )}
-
-          </div>
+      const url =
+        "https://wa.me/" +
+        WHATSAPP_NUMBER +
+        "?text=" +
+        encodeURIComponent(message);
 
 
-
-          <div
-            class="product-price">
-
-            € ${Number(
-              product.price
-            ).toFixed(2)}
-
-          </div>
-
-
-
-          <button
-
-            class="whatsapp-button"
-
-            type="button"
-
-            data-whatsapp="${product.id}">
-
-            طلب عبر WhatsApp
-
-          </button>
-
-
-        </div>
-
-
-      `;
-
-
-
-      productsGrid.appendChild(
-        card
-      );
+      window.open(url, "_blank");
 
     }
-  );
-
-}
 
 
+    /* =====================================
+       عرض المنتجات داخل الإدارة
+    ===================================== */
 
-/* =====================================================
-   RENDER ADMIN LIST
-===================================================== */
+    function renderAdminProducts() {
 
-function renderAdminList() {
+      const container =
+        document.getElementById("adminProducts");
 
-
-  adminList.innerHTML = "";
-
-
-  products.forEach(
-    function(product) {
+      container.innerHTML = "";
 
 
-      const item =
-        document.createElement(
-          "div"
-        );
+      if (products.length === 0) {
+
+        container.innerHTML = `
+          <p style="text-align:center;">
+            لا توجد منتجات.
+          </p>
+        `;
+
+        return;
+      }
 
 
-      item.className =
-        "admin-item";
+      products.forEach(function (product) {
+
+        const item =
+          document.createElement("div");
+
+        item.className =
+          "admin-product-item";
 
 
-      item.innerHTML = `
+        item.innerHTML = `
 
+          <div class="admin-product-info">
 
-        <div
-          class="admin-item-info">
+            <div class="admin-product-name">
+              ${escapeHTML(product.name)}
+            </div>
 
-
-          <div
-            class="admin-item-name">
-
-            ${escapeHTML(
-              product.name
-            )}
-
-          </div>
-
-
-          <div
-            class="admin-item-price">
-
-            € ${Number(
-              product.price
-            ).toFixed(2)}
+            <div class="admin-product-price">
+              ${escapeHTML(String(product.price))} €
+            </div>
 
           </div>
 
 
-        </div>
+          <div class="admin-product-actions">
+
+            <button
+              class="edit-button"
+              onclick="editProduct(${product.id})"
+            >
+              تعديل
+            </button>
+
+            <button
+              class="delete-button"
+              onclick="deleteProduct(${product.id})"
+            >
+              حذف
+            </button>
+
+          </div>
+
+        `;
 
 
+        container.appendChild(item);
 
-        <div
-          class="admin-actions">
-
-
-          <button
-
-            class="edit-button"
-
-            type="button"
-
-            data-edit="${product.id}">
-
-            تعديل
-
-          </button>
-
-
-
-          <button
-
-            class="delete-button"
-
-            type="button"
-
-            data-delete="${product.id}">
-
-            حذف
-
-          </button>
-
-
-        </div>
-
-
-      `;
-
-
-      adminList.appendChild(
-        item
-      );
-
-    }
-  );
-
-}
-
-
-
-/* =====================================================
-   RENDER EVERYTHING
-===================================================== */
-
-function render() {
-
-  renderProducts();
-
-  renderAdminList();
-
-}
-
-
-
-/* =====================================================
-   CANCEL
-===================================================== */
-
-cancelButton.addEventListener(
-  "click",
-  function() {
-
-
-    productForm.reset();
-
-
-    editId.value = "";
-
-
-  }
-);
-
-
-
-/* =====================================================
-   ADD / EDIT PRODUCT
-===================================================== */
-
-productForm.addEventListener(
-  "submit",
-  function(event) {
-
-
-    event.preventDefault();
-
-
-    const name =
-      productName.value.trim();
-
-
-    const price =
-      Number(
-        productPrice.value
-      );
-
-
-    const image =
-      productImage.value.trim();
-
-
-
-    if (
-      !name ||
-      !Number.isFinite(price) ||
-      price < 0
-    ) {
-
-      return;
+      });
 
     }
 
 
+    /* =====================================
+       إضافة / تعديل منتج
+    ===================================== */
 
-    /* EDIT */
+    function saveProduct() {
 
-    if (
-      editId.value
-    ) {
+      const name =
+        document.getElementById("productName")
+          .value.trim();
 
+      const price =
+        document.getElementById("productPrice")
+          .value;
 
-      const index =
-        products.findIndex(
-          function(product) {
-
-            return String(
-              product.id
-            )
-            ===
-            String(
-              editId.value
-            );
-
-          }
-        );
+      const image =
+        document.getElementById("productImage")
+          .value.trim();
 
 
-      if (
-        index !== -1
-      ) {
+      if (!name) {
+
+        alert("يرجى إدخال اسم المنتج.");
+
+        return;
+      }
 
 
-        products[index] = {
+      if (price === "" || Number(price) < 0) {
 
-          ...products[index],
+        alert("يرجى إدخال سعر صحيح.");
+
+        return;
+      }
+
+
+      // تعديل منتج موجود
+      if (editingProductId !== null) {
+
+        const product =
+          products.find(function (item) {
+
+            return item.id === editingProductId;
+
+          });
+
+
+        if (product) {
+
+          product.name = name;
+          product.price = Number(price);
+          product.image = image;
+
+        }
+
+
+        editingProductId = null;
+
+
+        document.getElementById(
+          "saveProductButton"
+        ).textContent = "إضافة المنتج";
+
+      }
+
+
+      // إضافة منتج جديد
+      else {
+
+        const newProduct = {
+
+          id: Date.now(),
 
           name: name,
 
-          price: price,
+          price: Number(price),
 
           image: image
 
         };
 
 
+        products.push(newProduct);
+
       }
 
-    }
 
+      clearProductForm();
 
+      renderProducts();
 
-    /* ADD */
-
-    else {
-
-
-      products.push({
-
-        id: Date.now(),
-
-        name: name,
-
-        price: price,
-
-        image: image
-
-      });
-
+      renderAdminProducts();
 
     }
 
 
+    /* =====================================
+       تعديل منتج
+    ===================================== */
 
-    productForm.reset();
-
-
-    editId.value = "";
-
-
-    render();
-
-
-  }
-);
-
-
-
-/* =====================================================
-   ADMIN ACTIONS
-===================================================== */
-
-adminList.addEventListener(
-  "click",
-  function(event) {
-
-
-    /* EDIT */
-
-    const editButton =
-      event.target.closest(
-        "[data-edit]"
-      );
-
-
-    if (
-      editButton
-    ) {
-
+    function editProduct(id) {
 
       const product =
-        products.find(
-          function(item) {
+        products.find(function (item) {
 
-            return String(
-              item.id
-            )
-            ===
-            String(
-              editButton.dataset.edit
-            );
+          return item.id === id;
 
-          }
-        );
+        });
 
 
-      if (
-        product
-      ) {
-
-
-        editId.value =
-          product.id;
-
-
-        productName.value =
-          product.name;
-
-
-        productPrice.value =
-          product.price;
-
-
-        productImage.value =
-          product.image;
-
-
-        adminPanel.classList.add(
-          "open"
-        );
-
-
-        productName.focus();
-
-
+      if (!product) {
+        return;
       }
 
 
-      return;
+      editingProductId = id;
+
+
+      document.getElementById(
+        "productName"
+      ).value = product.name;
+
+
+      document.getElementById(
+        "productPrice"
+      ).value = product.price;
+
+
+      document.getElementById(
+        "productImage"
+      ).value = product.image;
+
+
+      document.getElementById(
+        "saveProductButton"
+      ).textContent = "حفظ التعديل";
+
+
+      document.getElementById(
+        "productName"
+      ).focus();
 
     }
 
 
+    /* =====================================
+       حذف منتج
+    ===================================== */
 
-    /* DELETE */
+    function deleteProduct(id) {
 
-    const deleteButton =
-      event.target.closest(
-        "[data-delete]"
-      );
+      const product =
+        products.find(function (item) {
+
+          return item.id === id;
+
+        });
 
 
-    if (
-      deleteButton
-    ) {
+      if (!product) {
+        return;
+      }
 
 
       const confirmed =
         confirm(
-          "هل تريد حذف هذا المنتج؟"
+          "هل أنت متأكد من حذف المنتج؟"
         );
 
 
-      if (
-        !confirmed
-      ) {
-
+      if (!confirmed) {
         return;
+      }
+
+
+      products =
+        products.filter(function (item) {
+
+          return item.id !== id;
+
+        });
+
+
+      renderProducts();
+
+      renderAdminProducts();
+
+
+      // إذا كنا نعدل هذا المنتج
+      if (editingProductId === id) {
+
+        cancelEdit();
+
+      }
+
+    }
+
+
+    /* =====================================
+       إلغاء التعديل
+    ===================================== */
+
+    function cancelEdit() {
+
+      editingProductId = null;
+
+
+      const button =
+        document.getElementById(
+          "saveProductButton"
+        );
+
+
+      if (button) {
+
+        button.textContent =
+          "إضافة المنتج";
 
       }
 
 
-
-      products =
-        products.filter(
-          function(product) {
-
-            return String(
-              product.id
-            )
-            !==
-            String(
-              deleteButton.dataset.delete
-            );
-
-          }
-        );
-
-
-      render();
-
-
-    }
-
-  }
-);
-
-
-
-/* =====================================================
-   WHATSAPP
-===================================================== */
-
-productsGrid.addEventListener(
-  "click",
-  function(event) {
-
-
-    const button =
-      event.target.closest(
-        "[data-whatsapp]"
-      );
-
-
-    if (
-      !button
-    ) {
-
-      return;
+      clearProductForm();
 
     }
 
 
+    /* =====================================
+       تنظيف نموذج المنتج
+    ===================================== */
 
-    const product =
-      products.find(
-        function(item) {
+    function clearProductForm() {
 
-          return String(
-            item.id
-          )
-          ===
-          String(
-            button.dataset.whatsapp
-          );
+      document.getElementById(
+        "productName"
+      ).value = "";
 
-        }
-      );
+      document.getElementById(
+        "productPrice"
+      ).value = "";
 
-
-    if (
-      !product
-    ) {
-
-      return;
+      document.getElementById(
+        "productImage"
+      ).value = "";
 
     }
 
 
+    /* =====================================
+       حماية بسيطة للنصوص
+    ===================================== */
 
-    const message =
-      "مرحباً، أريد طلب المنتج: "
-      +
-      product.name;
+    function escapeHTML(value) {
 
+      return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
-
-    const whatsappURL =
-
-      "https://wa.me/"
-      +
-      WHATSAPP_NUMBER
-      +
-      "?text="
-      +
-      encodeURIComponent(
-        message
-      );
+    }
 
 
+    /* =====================================
+       تشغيل الموقع
+    ===================================== */
 
-    window.open(
-      whatsappURL,
-      "_blank"
-    );
+    renderProducts();
 
-
-  }
-);
-
-
-
-/* =====================================================
-   PRODUCTS TAB
-===================================================== */
-
-productsTab.addEventListener(
-  "click",
-  function() {
-
-
-    productsTab.classList.add(
-      "active"
-    );
-
-
-    careTab.classList.remove(
-      "active"
-    );
-
-
-    productsSection.classList.add(
-      "active"
-    );
-
-
-    careSection.classList.remove(
-      "active"
-    );
-
-
-  }
-);
-
-
-
-/* =====================================================
-   CARE TAB
-===================================================== */
-
-careTab.addEventListener(
-  "click",
-  function() {
-
-
-    careTab.classList.add(
-      "active"
-    );
-
-
-    productsTab.classList.remove(
-      "active"
-    );
-
-
-    careSection.classList.add(
-      "active"
-    );
-
-
-    productsSection.classList.remove(
-      "active"
-    );
-
-
-  }
-);
-
-
-
-/* =====================================================
-   INITIAL LOAD
-===================================================== */
-
-render();
-
-
-</script>
-
+  </script>
 
 </body>
-
 </html>
