@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World in Jar</title>
+  <meta name="description" content="World in Jar - Handmade terrariums">
+  <style>
+    :root{
+      --cream:#f7f1e7;
+      --cream2:#eee5d7;
+      --forest:#173b25;
+      --olive:#78833a;
+      --brown:#8b6339;
+      --line:#d9cfbd;
+      --white:#fffdf8;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--cream);
+      color:var(--forest);
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    .page{
+      width:min(100%,900px);
+      margin:auto;
+      padding:12px 16px 35px;
+    }
+    .logo{
+      display:block;
+      width:min(100%,390px);
+      height:auto;
+      margin:0 auto 20px;
+      border-radius:8px;
+    }
+    .bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom:1px solid var(--line);
+      padding:10px 2px 13px;
+      margin-bottom:18px;
+    }
+    .section{font-size:21px;font-weight:650}
+    button{
+      min-height:44px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:9px 13px;
+      background:var(--white);
+      color:var(--forest);
+      cursor:pointer;
+      font-size:14px;
+    }
+    button.primary{
+      background:var(--forest);
+      color:var(--cream);
+      border-color:var(--forest);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+    }
+    .card{
+      background:var(--white);
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .photo{
+      aspect-ratio:1/1;
+      background:var(--cream2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--olive);
+      font-size:14px;
+      overflow:hidden;
+    }
+    .photo img{width:100%;height:100%;object-fit:cover}
+    .body{padding:13px}
+    .name{font-size:17px;font-weight:650;margin-bottom:5px}
+    .price{font-size:15px;font-weight:700;color:var(--brown);margin-bottom:11px}
+    .wa{
+      width:100%;
+      background:var(--olive);
+      border-color:var(--olive);
+      color:white;
+    }
+    .panel{
+      display:none;
+      border:1px solid var(--line);
+      border-radius:15px;
+      padding:16px;
+      background:var(--white);
+      margin-bottom:18px;
+    }
+    .panel.open{display:block}
+    .form{display:grid;gap:10px}
+    label{font-size:13px;color:#66705b;display:block;margin-bottom:4px}
+    input{
+      width:100%;
+      padding:11px 12px;
+      border:1px solid var(--line);
+      border-radius:9px;
+      font-size:16px;
+      background:#fffdf8;
+      color:var(--forest);
+    }
+    .actions,.admin-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .admin-list{display:grid;gap:8px;margin-top:14px}
+    .admin-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:10px;
+    }
+    .note{font-size:12px;color:#737565;margin-top:10px;line-height:1.5}
+    @media(max-width:480px){
+      .grid{grid-template-columns:1fr 1fr}
+      .page{padding:8px 10px 24px}
+      .bar{align-items:flex-start}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <img class="logo" src="assets/logo.jpg" alt="World in Jar">
+
+    <div class="bar">
+      <div class="section">المنتجات</div>
+      <button id="adminBtn" type="button">⚙️ إدارة المنتجات</button>
+    </div>
+
+    <div id="adminPanel" class="panel">
+      <div style="font-weight:700;font-size:18px;margin-bottom:13px">إدارة المنتجات</div>
+
+      <form id="productForm" class="form">
+        <input id="editId" type="hidden">
+
+        <div>
+          <label for="pName">اسم المنتج</label>
+          <input id="pName" required placeholder="اسم المنتج">
+        </div>
+
+        <div>
+          <label for="pPrice">السعر (€)</label>
+          <input id="pPrice" required type="number" min="0" step="0.01" placeholder="25">
+        </div>
+
+        <div>
+          <label for="pImage">رابط صورة المنتج — مؤقتًا</label>
+          <input id="pImage" placeholder="https://...">
+        </div>
+
+        <div class="actions">
+          <button class="primary" type="submit">حفظ المنتج</button>
+          <button id="cancelBtn" type="button">إلغاء</button>
+        </div>
+      </form>
+
+      <div class="note">
+        هذه النسخة للتصميم والتجربة فقط. في المرحلة التالية سنربط المنتجات والصور بقاعدة بيانات بحيث تكون الإضافة والحذف والتعديل محفوظة فعليًا.
+      </div>
+
+      <div id="adminList" class="admin-list"></div>
+    </div>
+
+    <main id="products" class="grid"></main>
+  </div>
+
+<script>
+(() => {
+  // ضع رقم WhatsApp لاحقًا بصيغة دولية بدون + أو مسافات.
+  const WHATSAPP_NUMBER = "491234567890";
+
+  // بيانات تجريبية مؤقتة. لاحقًا ستأتي من قاعدة البيانات.
+  let products = [
+    {id:1, name:"منتج تجريبي 1", price:25, image:""},
+    {id:2, name:"منتج تجريبي 2", price:30, image:""},
+    {id:3, name:"منتج تجريبي 3", price:35, image:""},
+    {id:4, name:"منتج تجريبي 4", price:28, image:""}
+  ];
+
+  const productsEl = document.getElementById("products");
+  const panel = document.getElementById("adminPanel");
+  const list = document.getElementById("adminList");
+  const form = document.getElementById("productForm");
+  const editId = document.getElementById("editId");
+  const pName = document.getElementById("pName");
+  const pPrice = document.getElementById("pPrice");
+  const pImage = document.getElementById("pImage");
+
+  function esc(value){
+    return String(value ?? "").replace(/[&<>'"]/g, char => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      "'":"&#39;",
+      '"':"&quot;"
+    }[char]));
+  }
+
+  function render(){
+    productsEl.innerHTML = products.map(p => `
+      <article class="card">
+        <div class="photo">
+          ${p.image
+            ? `<img src="${esc(p.image)}" alt="${esc(p.name)}">`
+            : "صورة المنتج"}
+        </div>
+        <div class="body">
+          <div class="name">${esc(p.name)}</div>
+          <div class="price">${Number(p.price).toFixed(2)} €</div>
+          <button class="wa" type="button" data-wa="${p.id}">
+            طلب عبر WhatsApp
+          </button>
+        </div>
+      </article>
+    `).join("");
+
+    list.innerHTML = products.map(p => `
+      <div class="admin-item">
+        <div>
+          <strong>${esc(p.name)}</strong>
+          <div style="font-size:13px;color:#737565">
+            ${Number(p.price).toFixed(2)} €
+          </div>
+        </div>
+        <div class="admin-actions">
+          <button type="button" data-edit="${p.id}">تعديل</button>
+          <button type="button" data-delete="${p.id}">حذف</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  document.getElementById("adminBtn").addEventListener("click", () => {
+    panel.classList.toggle("open");
+  });
+
+  document.getElementById("cancelBtn").addEventListener("click", () => {
+    form.reset();
+    editId.value = "";
+  });
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+
+    const name = pName.value.trim();
+    const price = Number(pPrice.value);
+    const image = pImage.value.trim();
+
+    if (!name || !Number.isFinite(price) || price < 0) return;
+
+    if (editId.value){
+      const index = products.findIndex(p => String(p.id) === editId.value);
+      if(index >= 0){
+        products[index] = {
+          ...products[index],
+          name,
+          price,
+          image
+        };
+      }
+    } else {
+      products.push({
+        id: Date.now(),
+        name,
+        price,
+        image
+      });
+    }
+
+    form.reset();
+    editId.value = "";
+    render();
+  });
+
+  document.addEventListener("click", event => {
+    const wa = event.target.closest("[data-wa]");
+    if(wa){
+      const product = products.find(p => String(p.id) === wa.dataset.wa);
+      if(product){
+        const message =
+          "مرحباً، أريد طلب المنتج: " + product.name;
+
+        const url =
+          "https://wa.me/" +
+          WHATSAPP_NUMBER +
+          "?text=" +
+          encodeURIComponent(message);
+
+        window.open(url, "_blank");
+      }
+      return;
+    }
+
+    const edit = event.target.closest("[data-edit]");
+    if(edit){
+      const product = products.find(
+        p => String(p.id) === edit.dataset.edit
+      );
+
+      if(product){
+        editId.value = product.id;
+        pName.value = product.name;
+        pPrice.value = product.price;
+        pImage.value = product.image;
+        panel.classList.add("open");
+        pName.focus();
+      }
+      return;
+    }
+
+    const del = event.target.closest("[data-delete]");
+    if(del){
+      products = products.filter(
+        p => String(p.id) !== del.dataset.delete
+      );
+      render();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
