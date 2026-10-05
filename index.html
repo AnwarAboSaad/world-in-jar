@@ -1,335 +1,1464 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>World in Jar</title>
-  <meta name="description" content="World in Jar - Handmade terrariums">
+
   <style>
-    :root{
-      --cream:#f7f1e7;
-      --cream2:#eee5d7;
-      --forest:#173b25;
-      --olive:#78833a;
-      --brown:#8b6339;
-      --line:#d9cfbd;
-      --white:#fffdf8;
+    :root {
+      --cream: #f7f1e7;
+      --cream-dark: #eee5d7;
+      --forest: #173b25;
+      --olive: #78833a;
+      --brown: #8b6339;
+      --line: #d9cfbd;
+      --white: #fffdf8;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      background:var(--cream);
-      color:var(--forest);
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+
+    * {
+      box-sizing: border-box;
     }
-    .page{
-      width:min(100%,900px);
-      margin:auto;
-      padding:12px 16px 35px;
+
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--forest);
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
     }
-    .logo{
-      display:block;
-      width:min(100%,390px);
-      height:auto;
-      margin:0 auto 20px;
-      border-radius:8px;
+
+    /* =========================
+       MAIN PAGE
+    ========================= */
+
+    .page {
+      width: 100%;
+      max-width: 1000px;
+      margin: auto;
+      padding: 15px 20px 40px;
     }
-    .bar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      border-bottom:1px solid var(--line);
-      padding:10px 2px 13px;
-      margin-bottom:18px;
+
+    /* =========================
+       TOP HEADER
+    ========================= */
+
+    .top-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      direction: ltr;
+      margin-bottom: 15px;
     }
-    .section{font-size:21px;font-weight:650}
-    button{
-      min-height:44px;
-      border:1px solid var(--line);
-      border-radius:10px;
-      padding:9px 13px;
-      background:var(--white);
-      color:var(--forest);
-      cursor:pointer;
-      font-size:14px;
+
+    /* Logo on RIGHT */
+    .logo-container {
+      direction: rtl;
+      width: 150px;
     }
-    button.primary{
-      background:var(--forest);
-      color:var(--cream);
-      border-color:var(--forest);
+
+    .logo {
+      width: 150px;
+      height: auto;
+      display: block;
+      border-radius: 10px;
     }
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:16px;
+
+    /* Admin button on LEFT */
+    .admin-container {
+      direction: rtl;
+      padding-top: 5px;
     }
-    .card{
-      background:var(--white);
-      border:1px solid var(--line);
-      border-radius:16px;
-      overflow:hidden;
+
+    .admin-button {
+      min-height: 46px;
+      padding: 10px 18px;
+
+      background: var(--white);
+      color: var(--forest);
+
+      border: 1px solid var(--line);
+      border-radius: 12px;
+
+      font-size: 15px;
+      cursor: pointer;
+
+      transition: 0.2s;
     }
-    .photo{
-      aspect-ratio:1/1;
-      background:var(--cream2);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:var(--olive);
-      font-size:14px;
-      overflow:hidden;
+
+    .admin-button:hover {
+      background: var(--cream-dark);
     }
-    .photo img{width:100%;height:100%;object-fit:cover}
-    .body{padding:13px}
-    .name{font-size:17px;font-weight:650;margin-bottom:5px}
-    .price{font-size:15px;font-weight:700;color:var(--brown);margin-bottom:11px}
-    .wa{
-      width:100%;
-      background:var(--olive);
-      border-color:var(--olive);
-      color:white;
+
+    /* =========================
+       CATEGORY NAVIGATION
+    ========================= */
+
+    .category-bar {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+
+      margin-bottom: 22px;
     }
-    .panel{
-      display:none;
-      border:1px solid var(--line);
-      border-radius:15px;
-      padding:16px;
-      background:var(--white);
-      margin-bottom:18px;
+
+    .category-button {
+      flex: 1;
+
+      border: none;
+      border-radius: 0;
+
+      background: transparent;
+
+      color: var(--forest);
+
+      padding: 15px 10px;
+
+      font-size: 18px;
+      font-weight: 600;
+
+      cursor: pointer;
+
+      position: relative;
     }
-    .panel.open{display:block}
-    .form{display:grid;gap:10px}
-    label{font-size:13px;color:#66705b;display:block;margin-bottom:4px}
-    input{
-      width:100%;
-      padding:11px 12px;
-      border:1px solid var(--line);
-      border-radius:9px;
-      font-size:16px;
-      background:#fffdf8;
-      color:var(--forest);
+
+    .category-button.active {
+      color: var(--olive);
     }
-    .actions,.admin-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .admin-list{display:grid;gap:8px;margin-top:14px}
-    .admin-item{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:10px;
-      border:1px solid var(--line);
-      border-radius:10px;
+
+    .category-button.active::after {
+      content: "";
+
+      position: absolute;
+
+      bottom: 0;
+      right: 20%;
+      left: 20%;
+
+      height: 3px;
+
+      background: var(--olive);
+      border-radius: 5px;
     }
-    .note{font-size:12px;color:#737565;margin-top:10px;line-height:1.5}
-    @media(max-width:480px){
-      .grid{grid-template-columns:1fr 1fr}
-      .page{padding:8px 10px 24px}
-      .bar{align-items:flex-start}
+
+    /* =========================
+       CONTENT SECTIONS
+    ========================= */
+
+    .content-section {
+      display: none;
+    }
+
+    .content-section.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+
+      margin-bottom: 18px;
+
+      color: var(--forest);
+    }
+
+    /* =========================
+       PRODUCTS GRID
+    ========================= */
+
+    .products-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+      gap: 18px;
+    }
+
+    /* =========================
+       PRODUCT CARD
+    ========================= */
+
+    .product-card {
+      background: var(--white);
+
+      border: 1px solid var(--line);
+
+      border-radius: 16px;
+
+      overflow: hidden;
+
+      box-shadow:
+        0 2px 8px rgba(30, 50, 35, 0.05);
+    }
+
+    .product-image {
+      width: 100%;
+
+      aspect-ratio: 1 / 1;
+
+      background: var(--cream-dark);
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      color: var(--olive);
+
+      overflow: hidden;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      display: block;
+    }
+
+    .product-placeholder {
+      font-size: 15px;
+      color: var(--olive);
+    }
+
+    .product-info {
+      padding: 14px;
+    }
+
+    .product-name {
+      font-size: 18px;
+
+      font-weight: 650;
+
+      color: var(--forest);
+
+      margin-bottom: 7px;
+    }
+
+    .product-price {
+      font-size: 16px;
+
+      font-weight: 700;
+
+      color: var(--brown);
+
+      margin-bottom: 13px;
+    }
+
+    /* =========================
+       WHATSAPP BUTTON
+    ========================= */
+
+    .whatsapp-button {
+      width: 100%;
+
+      min-height: 45px;
+
+      border: none;
+
+      border-radius: 10px;
+
+      background: var(--olive);
+
+      color: white;
+
+      font-size: 15px;
+
+      cursor: pointer;
+
+      transition: 0.2s;
+    }
+
+    .whatsapp-button:hover {
+      background: var(--forest);
+    }
+
+    /* =========================
+       CARE INSTRUCTIONS
+    ========================= */
+
+    .care-box {
+      background: var(--white);
+
+      border: 1px solid var(--line);
+
+      border-radius: 16px;
+
+      padding: 20px;
+
+      line-height: 1.9;
+
+      font-size: 16px;
+    }
+
+    .care-box h3 {
+      margin-top: 0;
+
+      color: var(--forest);
+    }
+
+    .care-box ul {
+      margin: 10px 0 0;
+
+      padding-right: 20px;
+    }
+
+    .care-box li {
+      margin-bottom: 8px;
+    }
+
+    /* =========================
+       ADMIN PANEL
+    ========================= */
+
+    .admin-panel {
+      display: none;
+
+      background: var(--white);
+
+      border: 1px solid var(--line);
+
+      border-radius: 16px;
+
+      padding: 20px;
+
+      margin-bottom: 20px;
+    }
+
+    .admin-panel.open {
+      display: block;
+    }
+
+    .admin-title {
+      font-size: 21px;
+
+      font-weight: 700;
+
+      margin-bottom: 15px;
+    }
+
+    .form {
+      display: grid;
+
+      gap: 12px;
+    }
+
+    .form-group label {
+      display: block;
+
+      font-size: 13px;
+
+      margin-bottom: 5px;
+
+      color: #66705b;
+    }
+
+    .form-group input {
+      width: 100%;
+
+      padding: 12px;
+
+      border: 1px solid var(--line);
+
+      border-radius: 9px;
+
+      background: #fffdf8;
+
+      color: var(--forest);
+
+      font-size: 16px;
+    }
+
+    .form-actions {
+      display: flex;
+
+      gap: 8px;
+
+      flex-wrap: wrap;
+    }
+
+    .save-button {
+      background: var(--forest);
+
+      color: white;
+
+      border: none;
+
+      border-radius: 9px;
+
+      padding: 11px 18px;
+
+      cursor: pointer;
+    }
+
+    .cancel-button {
+      background: var(--cream-dark);
+
+      color: var(--forest);
+
+      border: 1px solid var(--line);
+
+      border-radius: 9px;
+
+      padding: 11px 18px;
+
+      cursor: pointer;
+    }
+
+    /* =========================
+       ADMIN PRODUCT LIST
+    ========================= */
+
+    .admin-list {
+      display: grid;
+
+      gap: 8px;
+
+      margin-top: 20px;
+    }
+
+    .admin-item {
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 10px;
+
+      padding: 11px;
+
+      border: 1px solid var(--line);
+
+      border-radius: 10px;
+    }
+
+    .admin-item-info {
+      min-width: 0;
+    }
+
+    .admin-item-name {
+      font-weight: 650;
+    }
+
+    .admin-item-price {
+      font-size: 13px;
+
+      color: var(--brown);
+
+      margin-top: 3px;
+    }
+
+    .admin-actions {
+      display: flex;
+
+      gap: 6px;
+
+      flex-wrap: wrap;
+    }
+
+    .edit-button,
+    .delete-button {
+      border: 1px solid var(--line);
+
+      background: var(--white);
+
+      border-radius: 8px;
+
+      padding: 8px 11px;
+
+      cursor: pointer;
+    }
+
+    .delete-button {
+      color: #8b3d32;
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 600px) {
+
+      .page {
+        padding: 10px 12px 30px;
+      }
+
+      .logo-container {
+        width: 120px;
+      }
+
+      .logo {
+        width: 120px;
+      }
+
+      .admin-button {
+        font-size: 14px;
+
+        padding: 9px 12px;
+      }
+
+      .category-button {
+        font-size: 16px;
+
+        padding: 14px 5px;
+      }
+
+      .products-grid {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+
+        gap: 12px;
+      }
+
+      .product-info {
+        padding: 11px;
+      }
+
+      .product-name {
+        font-size: 16px;
+      }
+
+      .product-price {
+        font-size: 15px;
+      }
+
+      .whatsapp-button {
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 380px) {
+
+      .logo-container {
+        width: 105px;
+      }
+
+      .logo {
+        width: 105px;
+      }
+
+      .admin-button {
+        font-size: 13px;
+
+        padding: 8px 9px;
+      }
+
+      .product-name {
+        font-size: 15px;
+      }
     }
   </style>
 </head>
-<body>
-  <div class="page">
-    <img class="logo" src="logo.jpg" alt="World in Jar">
 
-    <div class="bar">
-      <div class="section">المنتجات</div>
-      <button id="adminBtn" type="button">⚙️ إدارة المنتجات</button>
+
+<body>
+
+<div class="page">
+
+  <!-- =========================
+       HEADER
+  ========================== -->
+
+  <header class="top-header">
+
+    <!-- LEFT -->
+    <div class="admin-container">
+
+      <button
+        id="adminButton"
+        class="admin-button"
+        type="button">
+
+        ⚙️ إدارة المنتجات
+
+      </button>
+
     </div>
 
-    <div id="adminPanel" class="panel">
-      <div style="font-weight:700;font-size:18px;margin-bottom:13px">إدارة المنتجات</div>
 
-      <form id="productForm" class="form">
-        <input id="editId" type="hidden">
+    <!-- RIGHT -->
+    <div class="logo-container">
 
-        <div>
-          <label for="pName">اسم المنتج</label>
-          <input id="pName" required placeholder="اسم المنتج">
-        </div>
+      <!-- مهم:
+           logo.jpg موجود بجانب index.html
+      -->
 
-        <div>
-          <label for="pPrice">السعر (€)</label>
-          <input id="pPrice" required type="number" min="0" step="0.01" placeholder="25">
-        </div>
+      <img
+        class="logo"
+        src="logo.jpg"
+        alt="World in Jar">
 
-        <div>
-          <label for="pImage">رابط صورة المنتج — مؤقتًا</label>
-          <input id="pImage" placeholder="https://...">
-        </div>
+    </div>
 
-        <div class="actions">
-          <button class="primary" type="submit">حفظ المنتج</button>
-          <button id="cancelBtn" type="button">إلغاء</button>
-        </div>
-      </form>
+  </header>
 
-      <div class="note">
-        هذه النسخة للتصميم والتجربة فقط. في المرحلة التالية سنربط المنتجات والصور بقاعدة بيانات بحيث تكون الإضافة والحذف والتعديل محفوظة فعليًا.
+
+  <!-- =========================
+       ADMIN PANEL
+  ========================== -->
+
+  <section
+    id="adminPanel"
+    class="admin-panel">
+
+    <div class="admin-title">
+      إدارة المنتجات
+    </div>
+
+
+    <form
+      id="productForm"
+      class="form">
+
+      <input
+        id="editId"
+        type="hidden">
+
+
+      <div class="form-group">
+
+        <label for="productName">
+          اسم المنتج
+        </label>
+
+        <input
+          id="productName"
+          type="text"
+          placeholder="مثلاً: Mini Forest"
+          required>
+
       </div>
 
-      <div id="adminList" class="admin-list"></div>
+
+      <div class="form-group">
+
+        <label for="productPrice">
+          السعر (€)
+        </label>
+
+        <input
+          id="productPrice"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="25"
+          required>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="productImage">
+          رابط صورة المنتج
+        </label>
+
+        <input
+          id="productImage"
+          type="text"
+          placeholder="https://...">
+
+      </div>
+
+
+      <div class="form-actions">
+
+        <button
+          class="save-button"
+          type="submit">
+
+          حفظ المنتج
+
+        </button>
+
+
+        <button
+          id="cancelButton"
+          class="cancel-button"
+          type="button">
+
+          إلغاء
+
+        </button>
+
+      </div>
+
+    </form>
+
+
+    <div
+      id="adminList"
+      class="admin-list">
     </div>
 
-    <main id="products" class="grid"></main>
-  </div>
+  </section>
+
+
+  <!-- =========================
+       CATEGORY BUTTONS
+  ========================== -->
+
+  <nav class="category-bar">
+
+    <!-- RIGHT -->
+    <button
+      id="productsTab"
+      class="category-button active"
+      type="button">
+
+      المنتجات
+
+    </button>
+
+
+    <!-- LEFT -->
+    <button
+      id="careTab"
+      class="category-button"
+      type="button">
+
+      تعليمات العناية
+
+    </button>
+
+  </nav>
+
+
+  <!-- =========================
+       PRODUCTS
+  ========================== -->
+
+  <section
+    id="productsSection"
+    class="content-section active">
+
+    <div
+      id="productsGrid"
+      class="products-grid">
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       CARE INSTRUCTIONS
+  ========================== -->
+
+  <section
+    id="careSection"
+    class="content-section">
+
+    <div class="section-title">
+      تعليمات العناية
+    </div>
+
+
+    <div class="care-box">
+
+      <h3>
+        كيفية العناية بالـ Terrarium 🌿
+      </h3>
+
+
+      <ul>
+
+        <li>
+          ضع الوعاء في مكان مضاء بشكل جيد
+          بعيدًا عن أشعة الشمس المباشرة.
+        </li>
+
+        <li>
+          لا تكثر من الماء.
+          يحتاج النبات إلى كمية قليلة فقط.
+        </li>
+
+        <li>
+          إذا ظهرت قطرات ماء كثيرة على الزجاج،
+          افتح الغطاء لفترة قصيرة للتهوية.
+        </li>
+
+        <li>
+          تجنب وضع الـ Terrarium بالقرب من
+          مصادر الحرارة.
+        </li>
+
+        <li>
+          لا تحرك النباتات أو الديكور الداخلي
+          إلا عند الضرورة.
+        </li>
+
+      </ul>
+
+    </div>
+
+  </section>
+
+</div>
+
 
 <script>
-(() => {
-  // ضع رقم WhatsApp لاحقًا بصيغة دولية بدون + أو مسافات.
+
+  /* ==================================================
+     WHATSAPP NUMBER
+     ==================================================
+
+     ضع رقم WhatsApp الحقيقي هنا.
+
+     مثال ألمانيا:
+
+     491701234567
+
+     بدون +
+     بدون مسافات
+     بدون 00
+
+  ================================================== */
+
   const WHATSAPP_NUMBER = "491234567890";
 
-  // بيانات تجريبية مؤقتة. لاحقًا ستأتي من قاعدة البيانات.
+
+  /* ==================================================
+     TEMPORARY PRODUCTS
+
+     هذه المنتجات مؤقتة فقط.
+
+     لاحقًا سنربطها بـ Firebase.
+  ================================================== */
+
   let products = [
-    {id:1, name:"منتج تجريبي 1", price:25, image:""},
-    {id:2, name:"منتج تجريبي 2", price:30, image:""},
-    {id:3, name:"منتج تجريبي 3", price:35, image:""},
-    {id:4, name:"منتج تجريبي 4", price:28, image:""}
+
+    {
+      id: 1,
+      name: "منتج تجريبي 1",
+      price: 25,
+      image: ""
+    },
+
+    {
+      id: 2,
+      name: "منتج تجريبي 2",
+      price: 30,
+      image: ""
+    },
+
+    {
+      id: 3,
+      name: "منتج تجريبي 3",
+      price: 35,
+      image: ""
+    },
+
+    {
+      id: 4,
+      name: "منتج تجريبي 4",
+      price: 28,
+      image: ""
+    }
+
   ];
 
-  const productsEl = document.getElementById("products");
-  const panel = document.getElementById("adminPanel");
-  const list = document.getElementById("adminList");
-  const form = document.getElementById("productForm");
-  const editId = document.getElementById("editId");
-  const pName = document.getElementById("pName");
-  const pPrice = document.getElementById("pPrice");
-  const pImage = document.getElementById("pImage");
 
-  function esc(value){
-    return String(value ?? "").replace(/[&<>'"]/g, char => ({
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      "'":"&#39;",
-      '"':"&quot;"
-    }[char]));
-  }
+  /* ==================================================
+     ELEMENTS
+  ================================================== */
 
-  function render(){
-    productsEl.innerHTML = products.map(p => `
-      <article class="card">
-        <div class="photo">
-          ${p.image
-            ? `<img src="${esc(p.image)}" alt="${esc(p.name)}">`
-            : "صورة المنتج"}
-        </div>
-        <div class="body">
-          <div class="name">${esc(p.name)}</div>
-          <div class="price">${Number(p.price).toFixed(2)} €</div>
-          <button class="wa" type="button" data-wa="${p.id}">
-            طلب عبر WhatsApp
-          </button>
-        </div>
-      </article>
-    `).join("");
+  const productsGrid =
+    document.getElementById("productsGrid");
 
-    list.innerHTML = products.map(p => `
-      <div class="admin-item">
-        <div>
-          <strong>${esc(p.name)}</strong>
-          <div style="font-size:13px;color:#737565">
-            ${Number(p.price).toFixed(2)} €
-          </div>
-        </div>
-        <div class="admin-actions">
-          <button type="button" data-edit="${p.id}">تعديل</button>
-          <button type="button" data-delete="${p.id}">حذف</button>
-        </div>
-      </div>
-    `).join("");
-  }
+  const adminPanel =
+    document.getElementById("adminPanel");
 
-  document.getElementById("adminBtn").addEventListener("click", () => {
-    panel.classList.toggle("open");
-  });
+  const adminButton =
+    document.getElementById("adminButton");
 
-  document.getElementById("cancelBtn").addEventListener("click", () => {
-    form.reset();
-    editId.value = "";
-  });
+  const productForm =
+    document.getElementById("productForm");
 
-  form.addEventListener("submit", event => {
-    event.preventDefault();
+  const adminList =
+    document.getElementById("adminList");
 
-    const name = pName.value.trim();
-    const price = Number(pPrice.value);
-    const image = pImage.value.trim();
+  const editId =
+    document.getElementById("editId");
 
-    if (!name || !Number.isFinite(price) || price < 0) return;
+  const productName =
+    document.getElementById("productName");
 
-    if (editId.value){
-      const index = products.findIndex(p => String(p.id) === editId.value);
-      if(index >= 0){
-        products[index] = {
-          ...products[index],
-          name,
-          price,
-          image
-        };
-      }
-    } else {
-      products.push({
-        id: Date.now(),
-        name,
-        price,
-        image
+  const productPrice =
+    document.getElementById("productPrice");
+
+  const productImage =
+    document.getElementById("productImage");
+
+  const cancelButton =
+    document.getElementById("cancelButton");
+
+  const productsTab =
+    document.getElementById("productsTab");
+
+  const careTab =
+    document.getElementById("careTab");
+
+  const productsSection =
+    document.getElementById("productsSection");
+
+  const careSection =
+    document.getElementById("careSection");
+
+
+  /* ==================================================
+     ESCAPE HTML
+  ================================================== */
+
+  function escapeHTML(value) {
+
+    return String(value ?? "")
+      .replace(/[&<>'"]/g, function(char) {
+
+        return {
+
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "'": "&#39;",
+          '"': "&quot;"
+
+        }[char];
+
       });
-    }
 
-    form.reset();
-    editId.value = "";
-    render();
-  });
+  }
 
-  document.addEventListener("click", event => {
-    const wa = event.target.closest("[data-wa]");
-    if(wa){
-      const product = products.find(p => String(p.id) === wa.dataset.wa);
-      if(product){
-        const message =
-          "مرحباً، أريد طلب المنتج: " + product.name;
 
-        const url =
-          "https://wa.me/" +
-          WHATSAPP_NUMBER +
-          "?text=" +
-          encodeURIComponent(message);
+  /* ==================================================
+     RENDER PRODUCTS
+  ================================================== */
 
-        window.open(url, "_blank");
-      }
+  function renderProducts() {
+
+    productsGrid.innerHTML = "";
+
+
+    if (products.length === 0) {
+
+      productsGrid.innerHTML = `
+        <div style="
+          grid-column:1/-1;
+          text-align:center;
+          padding:40px 10px;
+          color:#78833a;
+        ">
+          لا توجد منتجات حاليًا
+        </div>
+      `;
+
       return;
     }
 
-    const edit = event.target.closest("[data-edit]");
-    if(edit){
-      const product = products.find(
-        p => String(p.id) === edit.dataset.edit
-      );
 
-      if(product){
-        editId.value = product.id;
-        pName.value = product.name;
-        pPrice.value = product.price;
-        pImage.value = product.image;
-        panel.classList.add("open");
-        pName.focus();
+    products.forEach(function(product) {
+
+      const card =
+        document.createElement("article");
+
+      card.className = "product-card";
+
+
+      let imageHTML = "";
+
+      if (product.image) {
+
+        imageHTML = `
+          <img
+            src="${escapeHTML(product.image)}"
+            alt="${escapeHTML(product.name)}"
+            onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'product-placeholder\\'>صورة المنتج</div>';">
+        `;
+
+      } else {
+
+        imageHTML = `
+          <div class="product-placeholder">
+            صورة المنتج
+          </div>
+        `;
+
       }
-      return;
-    }
 
-    const del = event.target.closest("[data-delete]");
-    if(del){
-      products = products.filter(
-        p => String(p.id) !== del.dataset.delete
-      );
+
+      card.innerHTML = `
+
+        <div class="product-image">
+
+          ${imageHTML}
+
+        </div>
+
+
+        <div class="product-info">
+
+          <div class="product-name">
+
+            ${escapeHTML(product.name)}
+
+          </div>
+
+
+          <div class="product-price">
+
+            € ${Number(product.price).toFixed(2)}
+
+          </div>
+
+
+          <button
+            class="whatsapp-button"
+            type="button"
+            data-whatsapp="${product.id}">
+
+            طلب عبر WhatsApp
+
+          </button>
+
+        </div>
+
+      `;
+
+
+      productsGrid.appendChild(card);
+
+    });
+
+  }
+
+
+  /* ==================================================
+     RENDER ADMIN LIST
+  ================================================== */
+
+  function renderAdminList() {
+
+    adminList.innerHTML = "";
+
+
+    products.forEach(function(product) {
+
+      const item =
+        document.createElement("div");
+
+      item.className = "admin-item";
+
+
+      item.innerHTML = `
+
+        <div class="admin-item-info">
+
+          <div class="admin-item-name">
+
+            ${escapeHTML(product.name)}
+
+          </div>
+
+
+          <div class="admin-item-price">
+
+            € ${Number(product.price).toFixed(2)}
+
+          </div>
+
+        </div>
+
+
+        <div class="admin-actions">
+
+          <button
+            class="edit-button"
+            type="button"
+            data-edit="${product.id}">
+
+            تعديل
+
+          </button>
+
+
+          <button
+            class="delete-button"
+            type="button"
+            data-delete="${product.id}">
+
+            حذف
+
+          </button>
+
+        </div>
+
+      `;
+
+
+      adminList.appendChild(item);
+
+    });
+
+  }
+
+
+  /* ==================================================
+     RENDER EVERYTHING
+  ================================================== */
+
+  function render() {
+
+    renderProducts();
+
+    renderAdminList();
+
+  }
+
+
+  /* ==================================================
+     ADMIN OPEN / CLOSE
+  ================================================== */
+
+  adminButton.addEventListener(
+    "click",
+    function() {
+
+      adminPanel.classList.toggle("open");
+
+    }
+  );
+
+
+  /* ==================================================
+     CANCEL EDIT
+  ================================================== */
+
+  cancelButton.addEventListener(
+    "click",
+    function() {
+
+      productForm.reset();
+
+      editId.value = "";
+
+    }
+  );
+
+
+  /* ==================================================
+     ADD / EDIT PRODUCT
+  ================================================== */
+
+  productForm.addEventListener(
+    "submit",
+    function(event) {
+
+      event.preventDefault();
+
+
+      const name =
+        productName.value.trim();
+
+
+      const price =
+        Number(productPrice.value);
+
+
+      const image =
+        productImage.value.trim();
+
+
+      if (
+        !name ||
+        !Number.isFinite(price) ||
+        price < 0
+      ) {
+
+        return;
+
+      }
+
+
+      /* EDIT */
+
+      if (editId.value) {
+
+        const index =
+          products.findIndex(
+            function(product) {
+
+              return String(product.id)
+                === String(editId.value);
+
+            }
+          );
+
+
+        if (index !== -1) {
+
+          products[index] = {
+
+            ...products[index],
+
+            name: name,
+
+            price: price,
+
+            image: image
+
+          };
+
+        }
+
+      }
+
+
+      /* ADD */
+
+      else {
+
+        products.push({
+
+          id: Date.now(),
+
+          name: name,
+
+          price: price,
+
+          image: image
+
+        });
+
+      }
+
+
+      productForm.reset();
+
+      editId.value = "";
+
+
       render();
+
     }
-  });
+  );
+
+
+  /* ==================================================
+     ADMIN ACTIONS
+  ================================================== */
+
+  adminList.addEventListener(
+    "click",
+    function(event) {
+
+
+      /* EDIT */
+
+      const editButton =
+        event.target.closest("[data-edit]");
+
+
+      if (editButton) {
+
+        const product =
+          products.find(
+            function(item) {
+
+              return String(item.id)
+                === String(editButton.dataset.edit);
+
+            }
+          );
+
+
+        if (product) {
+
+          editId.value =
+            product.id;
+
+          productName.value =
+            product.name;
+
+          productPrice.value =
+            product.price;
+
+          productImage.value =
+            product.image;
+
+
+          adminPanel.classList.add("open");
+
+
+          productName.focus();
+
+        }
+
+        return;
+
+      }
+
+
+      /* DELETE */
+
+      const deleteButton =
+        event.target.closest("[data-delete]");
+
+
+      if (deleteButton) {
+
+        const confirmed =
+          confirm(
+            "هل تريد حذف هذا المنتج؟"
+          );
+
+
+        if (!confirmed) {
+
+          return;
+
+        }
+
+
+        products =
+          products.filter(
+            function(product) {
+
+              return String(product.id)
+                !== String(deleteButton.dataset.delete);
+
+            }
+          );
+
+
+        render();
+
+      }
+
+    }
+  );
+
+
+  /* ==================================================
+     WHATSAPP
+  ================================================== */
+
+  productsGrid.addEventListener(
+    "click",
+    function(event) {
+
+      const button =
+        event.target.closest(
+          "[data-whatsapp]"
+        );
+
+
+      if (!button) {
+
+        return;
+
+      }
+
+
+      const product =
+        products.find(
+          function(item) {
+
+            return String(item.id)
+              === String(button.dataset.whatsapp);
+
+          }
+        );
+
+
+      if (!product) {
+
+        return;
+
+      }
+
+
+      const message =
+        "مرحباً، أريد طلب المنتج: "
+        + product.name;
+
+
+      const whatsappURL =
+        "https://wa.me/"
+        + WHATSAPP_NUMBER
+        + "?text="
+        + encodeURIComponent(message);
+
+
+      window.open(
+        whatsappURL,
+        "_blank"
+      );
+
+    }
+  );
+
+
+  /* ==================================================
+     PRODUCTS TAB
+  ================================================== */
+
+  productsTab.addEventListener(
+    "click",
+    function() {
+
+      productsTab.classList.add("active");
+
+      careTab.classList.remove("active");
+
+
+      productsSection.classList.add("active");
+
+      careSection.classList.remove("active");
+
+    }
+  );
+
+
+  /* ==================================================
+     CARE TAB
+  ================================================== */
+
+  careTab.addEventListener(
+    "click",
+    function() {
+
+      careTab.classList.add("active");
+
+      productsTab.classList.remove("active");
+
+
+      careSection.classList.add("active");
+
+      productsSection.classList.remove("active");
+
+    }
+  );
+
+
+  /* ==================================================
+     INITIAL RENDER
+  ================================================== */
 
   render();
-})();
+
 </script>
+
 </body>
 </html>
