@@ -1080,15 +1080,27 @@
           String(id)
         );
 
-        await window.firebaseFirestore.deleteDoc(productRef);
-        await loadProducts();
+        await withTimeout(
+          window.firebaseFirestore.deleteDoc(productRef),
+          15000
+        );
+
+        // onSnapshot سيحدّث القائمة تلقائياً بعد نجاح الحذف.
+        // نعيد الرسم مباشرة أيضاً حتى لا تبقى القائمة القديمة ظاهرة.
+        products = products.filter(function (item) {
+          return String(item.id) !== String(id);
+        });
+        renderProducts();
+        if (adminOpen) {
+          renderAdminProducts();
+        }
 
         if (String(editingProductId) === String(id)) {
           cancelEdit();
         }
       } catch (error) {
         console.error("Firebase delete error:", error);
-        alert("لم يتم حذف المنتج. تأكد من اتصال الموقع بقاعدة البيانات.");
+        alert(firebaseErrorMessage(error));
       }
     }
 
