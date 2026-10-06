@@ -1224,7 +1224,7 @@
         deleteButton.addEventListener("click", function (event) {
           event.preventDefault();
           event.stopPropagation();
-          deleteProduct(product.id);
+          deleteProduct(String(product.id), deleteButton);
         });
 
         container.appendChild(item);
@@ -1508,44 +1508,67 @@
       document.getElementById("productName").focus();
     }
 
-    async function deleteProduct(id) {
+    async function deleteProduct(id, buttonElement) {
+      const productId = String(id);
+
       const product = products.find(function (item) {
-        return String(item.id) === String(id);
+        return String(item.id) === productId;
       });
 
-      if (!product) return;
+      if (!product) {
+        alert("لم يتم العثور على المنتج.");
+        return;
+      }
 
-      if (!confirm("هل أنت متأكد من حذف المنتج؟")) return;
+      if (!window.confirm("هل أنت متأكد من حذف المنتج؟")) {
+        return;
+      }
+
+      if (buttonElement) {
+        buttonElement.disabled = true;
+        buttonElement.textContent = "جاري الحذف...";
+      }
 
       try {
         await window.firebaseReady;
+
+        if (!window.firebaseDb || !window.firebaseFirestore) {
+          throw new Error("Firebase غير جاهز.");
+        }
+
+        // استخدام مرجع Firestore مباشر لضمان تنفيذ الحذف.
         const productRef = window.firebaseFirestore.doc(
           window.firebaseDb,
           "products",
-          String(id)
+          productId
         );
 
-        await withTimeout(
-          window.firebaseFirestore.deleteDoc(productRef),
-          15000
-        );
+        await window.firebaseFirestore.deleteDoc(productRef);
 
-        // onSnapshot سيحدّث القائمة تلقائياً بعد نجاح الحذف.
-        // نعيد الرسم مباشرة أيضاً حتى لا تبقى القائمة القديمة ظاهرة.
+        // إزالة المنتج من الواجهة مباشرة.
         products = products.filter(function (item) {
-          return String(item.id) !== String(id);
+          return String(item.id) !== productId;
         });
-        renderProducts();
-        if (adminOpen) {
-          renderAdminProducts();
-        }
 
-        if (String(editingProductId) === String(id)) {
+        if (String(editingProductId) === productId) {
           cancelEdit();
         }
+
+        renderProducts();
+        renderAdminProducts();
+
       } catch (error) {
         console.error("Firebase delete error:", error);
-        alert(firebaseErrorMessage(error));
+
+        if (buttonElement) {
+          buttonElement.disabled = false;
+          buttonElement.textContent = "حذف";
+        }
+
+        alert(
+          "لم يتم حذف المنتج.\\n\\n" +
+          firebaseErrorMessage(error)
+        );
       }
     }
 
