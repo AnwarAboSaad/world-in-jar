@@ -525,6 +525,7 @@
       getFirestore,
       collection,
       getDocs,
+      onSnapshot,
       addDoc,
       updateDoc,
       deleteDoc,
@@ -550,6 +551,7 @@
     window.firebaseProductsCollection = collection(firebaseDb, "products");
     window.firebaseFirestore = {
       getDocs,
+      onSnapshot,
       addDoc,
       updateDoc,
       deleteDoc,
@@ -677,31 +679,43 @@
       }
     }
 
-    async function loadProducts() {
+    let productsListenerStarted = false;
+
+    function loadProducts() {
+      if (productsListenerStarted) return;
+      productsListenerStarted = true;
+
       try {
-        await window.firebaseReady;
+        window.firebaseFirestore.onSnapshot(
+          window.firebaseProductsCollection,
+          function (snapshot) {
+            products = snapshot.docs.map(function (productDoc) {
+              const data = productDoc.data();
+              return {
+                id: productDoc.id,
+                name: data.name || "",
+                price: Number(data.price || 0),
+                images: Array.isArray(data.images) ? data.images : [],
+                galleryIndex: 0
+              };
+            });
 
-        const snapshot = await window.firebaseFirestore.getDocs(
-          window.firebaseProductsCollection
+            renderProducts();
+            if (adminOpen) {
+              renderAdminProducts();
+            }
+          },
+          function (error) {
+            console.error("Firebase realtime read error:", error);
+            products = [];
+            const grid = document.getElementById("productsGrid");
+            if (grid) {
+              grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:35px 15px;color:#8a6b43;">تعذر تحميل المنتجات من قاعدة البيانات.<br><small>' + firebaseErrorMessage(error) + '</small></div>';
+            }
+          }
         );
-
-        products = snapshot.docs.map(function (productDoc) {
-          const data = productDoc.data();
-          return {
-            id: productDoc.id,
-            name: data.name || "",
-            price: Number(data.price || 0),
-            images: Array.isArray(data.images) ? data.images : [],
-            galleryIndex: 0
-          };
-        });
-
-        renderProducts();
-        if (adminOpen) {
-          renderAdminProducts();
-        }
       } catch (error) {
-        console.error("Firebase load error:", error);
+        console.error("Firebase listener error:", error);
         products = [];
         renderProducts();
       }
@@ -850,6 +864,42 @@
       });
     }
 
+    function firebaseErrorMessage(error) {
+      const code = error && error.code ? String(error.code) : "";
+      const message = error && error.message ? String(error.message) : "";
+
+      if (code.includes("permission-denied")) {
+        return "تم رفض العملية من Firebase. يجب تعديل Firestore Security Rules للسماح بالحفظ.";
+      }
+
+      if (code.includes("failed-precondition") || message.toLowerCase().includes("database")) {
+        return "قاعدة Firestore غير مفعّلة أو لم يتم إنشاؤها بعد. افتح Firebase > Build > Firestore Database وأنشئ قاعدة البيانات.";
+      }
+
+      if (code.includes("unavailable") || message.toLowerCase().includes("offline")) {
+        return "تعذر الاتصال بـ Firebase. تحقق من الإنترنت ثم أعد المحاولة.";
+      }
+
+      if (message) {
+        return "حدث خطأ من Firebase: " + message;
+      }
+
+      return "تعذر حفظ المنتج. تحقق من إعدادات Firestore.";
+    }
+
+    function withTimeout(promise, milliseconds) {
+      return Promise.race([
+        promise,
+        new Promise(function (_, reject) {
+          setTimeout(function () {
+            const error = new Error("انتهت مهلة الاتصال بـ Firebase.");
+            error.code = "firebase-timeout";
+            reject(error);
+          }, milliseconds);
+        })
+      ]);
+    }
+
     async function saveProduct() {
       const name = document.getElementById("productName").value.trim();
       const price = document.getElementById("productPrice").value;
@@ -870,7 +920,7 @@
       button.textContent = "جاري الحفظ...";
 
       try {
-        await window.firebaseReady;
+        await withTimeout(window.firebaseReady, 10000);
 
         const productData = {
           name: name,
@@ -886,23 +936,31 @@
             String(editingProductId)
           );
 
-          await window.firebaseFirestore.updateDoc(productRef, productData);
+          await withTimeout(
+            window.firebaseFirestore.updateDoc(productRef, productData),
+            15000
+          );
         } else {
           productData.createdAt = window.firebaseFirestore.serverTimestamp();
-          await window.firebaseFirestore.addDoc(
-            window.firebaseProductsCollection,
-            productData
+
+          await withTimeout(
+            window.firebaseFirestore.addDoc(
+              window.firebaseProductsCollection,
+              productData
+            ),
+            15000
           );
         }
 
-        await loadProducts();
+        // Firestore onSnapshot will update the product list automatically.
         editingProductId = null;
         clearProductForm();
         button.textContent = "إضافة المنتج";
+        alert("تم حفظ المنتج بنجاح.");
       } catch (error) {
         console.error("Firebase save error:", error);
-        alert("لم يتم حفظ المنتج. تأكد من تفعيل Cloud Firestore وقواعد الأمان.");
         button.textContent = originalText;
+        alert(firebaseErrorMessage(error));
       } finally {
         button.disabled = false;
       }
