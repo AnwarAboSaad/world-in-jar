@@ -892,6 +892,8 @@
             if (adminOpen) {
               renderAdminProducts();
             }
+
+            openProductFromHash();
           },
           function (error) {
             console.error("Firebase realtime read error:", error);
@@ -1044,7 +1046,18 @@
         gallery.innerHTML = '<div class="product-image-placeholder" style="height:100%;">لا توجد صورة</div>';
       }
 
-      const message = "مرحباً، أريد طلب المنتج: " + product.name;
+      const productUrl = new URL(window.location.href);
+      productUrl.hash = "product-" + encodeURIComponent(String(product.id));
+
+      const message =
+        "مرحباً 👋\\n\\n" +
+        "أريد أن أطلب المنتج:\\n\\n" +
+        "🌿 المنتج: " + product.name + "\\n" +
+        "💰 السعر: " + String(product.price) + " $\\n\\n" +
+        "📷 صور المنتج:\\n" +
+        productUrl.toString() + "\\n\\n" +
+        "شكراً لكم 🤍";
+
       whatsapp.href =
         "https://wa.me/" +
         WHATSAPP_NUMBER +
@@ -1121,7 +1134,27 @@
       document.body.style.overflow = "";
       detailProductId = null;
       detailGalleryIndex = 0;
+
+      if (window.location.hash.startsWith("#product-")) {
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
     }
+
+    function openProductFromHash() {
+      const hash = window.location.hash || "";
+      if (!hash.startsWith("#product-")) return;
+
+      const id = decodeURIComponent(hash.substring("#product-".length));
+      const product = products.find(function (item) {
+        return String(item.id) === String(id);
+      });
+
+      if (product) {
+        openProductDetail(product.id);
+      }
+    }
+
+    window.addEventListener("hashchange", openProductFromHash);
 
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape") {
