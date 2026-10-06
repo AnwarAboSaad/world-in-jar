@@ -1174,10 +1174,25 @@
             </div>
           </div>
           <div class="admin-product-actions">
-            <button class="edit-button" onclick="editProduct(${JSON.stringify(String(product.id))})">تعديل</button>
-            <button class="delete-button" onclick="deleteProduct(${JSON.stringify(String(product.id))})">حذف</button>
+            <button type="button" class="edit-button">تعديل</button>
+            <button type="button" class="delete-button">حذف</button>
           </div>
         `;
+
+        const editButton = item.querySelector(".edit-button");
+        const deleteButton = item.querySelector(".delete-button");
+
+        editButton.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          editProduct(product.id);
+        });
+
+        deleteButton.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          deleteProduct(product.id);
+        });
 
         container.appendChild(item);
       });
