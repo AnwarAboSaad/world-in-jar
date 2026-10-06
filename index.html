@@ -683,7 +683,9 @@
 
     function loadProducts() {
       if (productsListenerStarted) return;
-      productsListenerStarted = true;
+      if (!window.firebaseFirestore || !window.firebaseProductsCollection) {
+        return;
+      }
 
       try {
         window.firebaseFirestore.onSnapshot(
@@ -714,8 +716,10 @@
             }
           }
         );
+        productsListenerStarted = true;
       } catch (error) {
         console.error("Firebase listener error:", error);
+        productsListenerStarted = false;
         products = [];
         renderProducts();
       }
@@ -1126,7 +1130,13 @@
     }
 
     renderProducts();
+
+    // Firebase's module script is deferred. Start the Firestore listener
+    // after the page/module has finished loading, and retry if necessary.
     loadProducts();
+    window.addEventListener("load", function () {
+      loadProducts();
+    });
   </script>
 </body>
 </html>
