@@ -336,6 +336,163 @@
     }
     .admin-product-price { color: var(--brown); font-size: 14px; }
     .admin-product-actions { display: flex; gap: 7px; }
+
+    /* Product detail page/modal */
+    .product-detail-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(23, 59, 37, 0.42);
+      z-index: 9998;
+      overflow-y: auto;
+      padding: 18px;
+    }
+
+    .product-detail-box {
+      width: 100%;
+      max-width: 760px;
+      margin: 20px auto;
+      background: var(--cream);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 18px 50px rgba(23, 59, 37, 0.20);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .product-detail-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      color: var(--forest);
+      font-size: 25px;
+      line-height: 40px;
+      padding: 0;
+      cursor: pointer;
+      z-index: 5;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+    }
+
+    .detail-gallery {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: var(--cream-dark);
+      overflow: hidden;
+    }
+
+    .detail-gallery-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: var(--cream-dark);
+    }
+
+    .detail-gallery-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      color: var(--forest);
+      font-size: 28px;
+      cursor: pointer;
+      z-index: 2;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+    }
+
+    .detail-gallery-prev { right: 12px; }
+    .detail-gallery-next { left: 12px; }
+
+    .detail-gallery-counter {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(23,59,37,0.78);
+      color: white;
+      border-radius: 14px;
+      padding: 5px 11px;
+      font-size: 13px;
+      z-index: 2;
+    }
+
+    .product-detail-info {
+      padding: 22px;
+      text-align: center;
+    }
+
+    .product-detail-name {
+      color: var(--forest);
+      font-size: 25px;
+      font-weight: 600;
+      margin: 0 0 9px;
+    }
+
+    .product-detail-price {
+      color: var(--brown);
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .product-detail-whatsapp {
+      display: block;
+      width: 100%;
+      border: none;
+      border-radius: 11px;
+      padding: 14px 12px;
+      background: var(--forest);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .product-detail-whatsapp:hover {
+      background: var(--olive);
+    }
+
+    @media (max-width: 600px) {
+      .product-detail-overlay {
+        padding: 8px;
+      }
+
+      .product-detail-box {
+        margin: 8px auto;
+        border-radius: 17px;
+      }
+
+      .detail-gallery {
+        aspect-ratio: 1 / 1;
+      }
+
+      .product-detail-info {
+        padding: 18px 15px 20px;
+      }
+
+      .product-detail-name {
+        font-size: 22px;
+      }
+
+      .product-detail-price {
+        font-size: 18px;
+      }
+    }
+
     .modal-overlay {
       display: none;
       position: fixed;
@@ -506,6 +663,32 @@
     </section>
 
     <footer>Developer: Anwar Abo Saad</footer>
+  </div>
+
+
+  <div id="productDetailOverlay" class="product-detail-overlay" onclick="closeProductDetail(event)">
+    <div class="product-detail-box" onclick="event.stopPropagation()">
+      <button
+        type="button"
+        class="product-detail-close"
+        onclick="closeProductDetail()"
+        aria-label="إغلاق"
+      >×</button>
+
+      <div id="detailGallery" class="detail-gallery"></div>
+
+      <div class="product-detail-info">
+        <h2 id="detailProductName" class="product-detail-name"></h2>
+        <div id="detailProductPrice" class="product-detail-price"></div>
+        <a
+          id="detailWhatsAppButton"
+          class="product-detail-whatsapp"
+          href="#"
+          target="_blank"
+          rel="noopener"
+        >طلب عبر WhatsApp</a>
+      </div>
+    </div>
   </div>
 
   <div id="passwordModal" class="modal-overlay">
@@ -758,8 +941,8 @@
                 alt="${escapeHTML(product.name)}"
               >
               ${images.length > 1 ? `
-                <button class="gallery-arrow gallery-prev" onclick="changeGallery(${JSON.stringify(String(product.id))}, -1)" aria-label="الصورة السابقة">›</button>
-                <button class="gallery-arrow gallery-next" onclick="changeGallery(${JSON.stringify(String(product.id))}, 1)" aria-label="الصورة التالية">‹</button>
+                <button class="gallery-arrow gallery-prev" onclick="event.stopPropagation(); changeGallery(${JSON.stringify(String(product.id))}, -1)" aria-label="الصورة السابقة">›</button>
+                <button class="gallery-arrow gallery-next" onclick="event.stopPropagation(); changeGallery(${JSON.stringify(String(product.id))}, 1)" aria-label="الصورة التالية">‹</button>
                 <div class="gallery-counter" id="counter-${product.id}">1 / ${images.length}</div>
               ` : ""}
             </div>
@@ -773,11 +956,21 @@
           <div class="product-info">
             <h3 class="product-name">${escapeHTML(product.name)}</h3>
             <div class="product-price">${escapeHTML(String(product.price))} $</div>
-            <button class="whatsapp-button" onclick="orderOnWhatsApp(${JSON.stringify(String(product.id))})">
-              طلب عبر WhatsApp
-            </button>
           </div>
         `;
+
+        card.style.cursor = "pointer";
+        card.setAttribute("role", "button");
+        card.setAttribute("tabindex", "0");
+        card.addEventListener("click", function () {
+          openProductDetail(product.id);
+        });
+        card.addEventListener("keydown", function (event) {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openProductDetail(product.id);
+          }
+        });
 
         grid.appendChild(card);
       });
@@ -819,6 +1012,125 @@
           (product.galleryIndex + 1) + " / " + product.images.length;
       }
     }
+
+
+    let detailProductId = null;
+    let detailGalleryIndex = 0;
+
+    function openProductDetail(productId) {
+      const product = products.find(function (item) {
+        return String(item.id) === String(productId);
+      });
+
+      if (!product) return;
+
+      detailProductId = product.id;
+      detailGalleryIndex = 0;
+
+      const overlay = document.getElementById("productDetailOverlay");
+      const name = document.getElementById("detailProductName");
+      const price = document.getElementById("detailProductPrice");
+      const gallery = document.getElementById("detailGallery");
+      const whatsapp = document.getElementById("detailWhatsAppButton");
+
+      name.textContent = product.name;
+      price.textContent = String(product.price) + " $";
+
+      const images = Array.isArray(product.images) ? product.images : [];
+
+      if (images.length > 0) {
+        renderDetailGallery(product);
+      } else {
+        gallery.innerHTML = '<div class="product-image-placeholder" style="height:100%;">لا توجد صورة</div>';
+      }
+
+      const message = "مرحباً، أريد طلب المنتج: " + product.name;
+      whatsapp.href =
+        "https://wa.me/" +
+        WHATSAPP_NUMBER +
+        "?text=" +
+        encodeURIComponent(message);
+
+      overlay.style.display = "block";
+      document.body.style.overflow = "hidden";
+    }
+
+    function renderDetailGallery(product) {
+      const gallery = document.getElementById("detailGallery");
+      const images = Array.isArray(product.images) ? product.images : [];
+
+      if (images.length === 0) return;
+
+      gallery.innerHTML = `
+        <img
+          class="detail-gallery-image"
+          src="${escapeHTML(images[detailGalleryIndex])}"
+          alt="${escapeHTML(product.name)}"
+        >
+        ${images.length > 1 ? `
+          <button
+            type="button"
+            class="detail-gallery-arrow detail-gallery-prev"
+            onclick="event.stopPropagation(); changeDetailGallery(-1)"
+            aria-label="الصورة السابقة"
+          >›</button>
+          <button
+            type="button"
+            class="detail-gallery-arrow detail-gallery-next"
+            onclick="event.stopPropagation(); changeDetailGallery(1)"
+            aria-label="الصورة التالية"
+          >‹</button>
+          <div class="detail-gallery-counter">
+            ${detailGalleryIndex + 1} / ${images.length}
+          </div>
+        ` : ""}
+      `;
+    }
+
+    function changeDetailGallery(direction) {
+      if (detailProductId === null) return;
+
+      const product = products.find(function (item) {
+        return String(item.id) === String(detailProductId);
+      });
+
+      if (!product || !Array.isArray(product.images) || product.images.length < 2) {
+        return;
+      }
+
+      detailGalleryIndex += direction;
+
+      if (detailGalleryIndex < 0) {
+        detailGalleryIndex = product.images.length - 1;
+      }
+
+      if (detailGalleryIndex >= product.images.length) {
+        detailGalleryIndex = 0;
+      }
+
+      renderDetailGallery(product);
+    }
+
+    function closeProductDetail(event) {
+      if (event && event.target !== event.currentTarget) {
+        return;
+      }
+
+      const overlay = document.getElementById("productDetailOverlay");
+      overlay.style.display = "none";
+      document.body.style.overflow = "";
+      detailProductId = null;
+      detailGalleryIndex = 0;
+    }
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        const overlay = document.getElementById("productDetailOverlay");
+        if (overlay && overlay.style.display === "block") {
+          closeProductDetail();
+        }
+      }
+    });
 
     function orderOnWhatsApp(productId) {
       const product = products.find(function (item) {
