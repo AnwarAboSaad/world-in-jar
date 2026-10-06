@@ -491,6 +491,9 @@
           accept="image/*"
           multiple
         >
+        <div style="color:var(--brown);font-size:12px;line-height:1.6;">
+          حتى 6 صور. يتم تحسين حجم الصور تلقائياً مع الحفاظ على جودة عالية لتناسب الموقع.
+        </div>
         <div id="imagePreview" class="image-preview"></div>
 
         <div class="admin-buttons">
@@ -835,27 +838,6 @@
       window.open(url, "_blank");
     }
 
-    const adminProductsContainer = document.getElementById("adminProducts");
-
-    adminProductsContainer.addEventListener("click", function (event) {
-      const button = event.target.closest("button[data-action]");
-      if (!button) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      const id = button.getAttribute("data-product-id");
-      const action = button.getAttribute("data-action");
-
-      if (!id) return;
-
-      if (action === "edit") {
-        editProduct(id);
-      } else if (action === "delete") {
-        deleteProduct(id);
-      }
-    });
-
     function renderAdminProducts() {
       const container = document.getElementById("adminProducts");
       container.innerHTML = "";
@@ -880,8 +862,8 @@
             </div>
           </div>
           <div class="admin-product-actions">
-            <button type="button" class="edit-button" data-action="edit" data-product-id="${escapeHTML(String(product.id))}">تعديل</button>
-            <button type="button" class="delete-button" data-action="delete" data-product-id="${escapeHTML(String(product.id))}">حذف</button>
+            <button class="edit-button" onclick="editProduct(${JSON.stringify(String(product.id))})">تعديل</button>
+            <button class="delete-button" onclick="deleteProduct(${JSON.stringify(String(product.id))})">حذف</button>
           </div>
         `;
 
@@ -1000,29 +982,21 @@
 
       const remainingSlots = 6 - selectedImages.length;
 
+      if (remainingSlots <= 0) {
+        alert("يمكن إضافة حتى 6 صور لكل منتج.");
+        productImagesInput.value = "";
+        return;
+      }
+
       if (files.length > remainingSlots) {
         alert("يمكن إضافة حتى 6 صور لكل منتج.");
       }
 
-      const filesToAdd = files.slice(0, Math.max(0, remainingSlots));
+      const filesToAdd = files.slice(0, remainingSlots);
 
       Promise.all(
         filesToAdd.map(function (file) {
-          return new Promise(function (resolve, reject) {
-            if (!file.type.startsWith("image/")) {
-              reject(new Error("الملف ليس صورة."));
-              return;
-            }
-
-            const reader = new FileReader();
-
-            reader.onload = function () {
-              resolve(reader.result);
-            };
-
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
+          return compressImageForFirestore(file);
         })
       )
       .then(function (newImages) {
@@ -1030,9 +1004,99 @@
         renderImagePreview();
         productImagesInput.value = "";
       })
-      .catch(function () {
-        alert("حدث خطأ أثناء قراءة إحدى الصور.");
+      .catch(function (error) {
+        console.error("Image compression error:", error);
+        alert("حدث خطأ أثناء تجهيز إحدى الصور. جرّب صورة أخرى.");
         productImagesInput.value = "";
+      });
+    }
+
+    // نحافظ على جودة عالية، لكن نخفّض أبعاد وحجم الصورة بما يناسب Firestore.
+    // الصور الأصلية على الهاتف لا تتأثر إطلاقاً؛ هذه نسخة خاصة بالموقع فقط.
+    function compressImageForFirestore(file) {
+      return new Promise(function (resolve, reject) {
+        if (!file.type.startsWith("image/")) {
+          reject(new Error("الملف ليس صورة."));
+          return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function () {
+          const image = new Image();
+
+          image.onload = function () {
+            try {
+              const maxDimension = 1400;
+              const scale = Math.min(
+                1,
+                maxDimension / Math.max(image.naturalWidth, image.naturalHeight)
+              );
+
+              const width = Math.max(1, Math.round(image.naturalWidth * scale));
+              const height = Math.max(1, Math.round(image.naturalHeight * scale));
+
+              const canvas = document.createElement("canvas");
+              canvas.width = width;
+              canvas.height = height;
+
+              const context = canvas.getContext("2d", { alpha: true });
+              if (!context) {
+                reject(new Error("تعذر تجهيز الصورة."));
+                return;
+              }
+
+              context.imageSmoothingEnabled = true;
+              context.imageSmoothingQuality = "high";
+              context.drawImage(image, 0, 0, width, height);
+
+              // WebP يعطي جودة ممتازة بحجم صغير ويدعم الشفافية.
+              let quality = 0.90;
+              let dataUrl = canvas.toDataURL("image/webp", quality);
+
+              // إذا كان المتصفح لا يدعم WebP في canvas، نستخدم JPEG بجودة عالية.
+              if (!dataUrl.startsWith("data:image/webp")) {
+                context.fillStyle = "#ffffff";
+                context.globalCompositeOperation = "destination-over";
+                context.fillRect(0, 0, width, height);
+                context.globalCompositeOperation = "source-over";
+                dataUrl = canvas.toDataURL("image/jpeg", quality);
+              }
+
+              // نحاول إبقاء الصورة ضمن حجم آمن عند تخزينها في Firestore.
+              // لا نخفض الأبعاد تحت 1000px إلا عند الضرورة.
+              const targetBytes = 130 * 1024;
+              let attempts = 0;
+
+              while (dataUrl.length > targetBytes * 1.37 && attempts < 5) {
+                attempts++;
+                quality -= 0.06;
+
+                if (dataUrl.startsWith("data:image/webp")) {
+                  dataUrl = canvas.toDataURL("image/webp", Math.max(0.60, quality));
+                } else {
+                  dataUrl = canvas.toDataURL("image/jpeg", Math.max(0.60, quality));
+                }
+              }
+
+              resolve(dataUrl);
+            } catch (error) {
+              reject(error);
+            }
+          };
+
+          image.onerror = function () {
+            reject(new Error("تعذر قراءة الصورة."));
+          };
+
+          image.src = reader.result;
+        };
+
+        reader.onerror = function () {
+          reject(new Error("تعذر قراءة الملف."));
+        };
+
+        reader.readAsDataURL(file);
       });
     }
 
