@@ -1050,12 +1050,12 @@
       productUrl.hash = "product-" + encodeURIComponent(String(product.id));
 
       const message =
-        "مرحباً 👋\\n\\n" +
-        "أريد أن أطلب المنتج:\\n\\n" +
-        "🌿 المنتج: " + product.name + "\\n" +
-        "💰 السعر: " + String(product.price) + " $\\n\\n" +
-        "📷 صور المنتج:\\n" +
-        productUrl.toString() + "\\n\\n" +
+        "مرحباً 👋\n\n" +
+        "أريد أن أطلب المنتج:\n\n" +
+        "🌿 المنتج: " + product.name + "\n" +
+        "💰 السعر: " + String(product.price) + " $\n\n" +
+        "📷 صور المنتج:\n" +
+        productUrl.toString() + "\n\n" +
         "شكراً لكم 🤍";
 
       whatsapp.href =
