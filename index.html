@@ -319,6 +319,42 @@
     }
     .edit-button { background: var(--olive); }
     .delete-button { background: var(--danger); }
+    .backup-tools {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+    .backup-title {
+      color: var(--forest);
+      font-size: 17px;
+      margin: 0 0 7px;
+    }
+    .backup-note {
+      color: var(--brown);
+      font-size: 12px;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+    .backup-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .backup-button {
+      flex: 1;
+      min-width: 150px;
+      border: none;
+      border-radius: 9px;
+      padding: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      background: var(--olive);
+    }
+    .restore-button { background: var(--brown); }
+    .backup-button:disabled { opacity: 0.6; cursor: wait; }
+
     .admin-products { margin-top: 25px; }
     .admin-product-item {
       display: flex;
@@ -659,6 +695,18 @@
         </div>
       </div>
 
+      <div class="backup-tools">
+        <h3 class="backup-title">💾 النسخة الاحتياطية</h3>
+        <div class="backup-note">
+          احفظ نسخة من جميع المنتجات والأسعار والصور على جهازك. يمكن استخدام الملف لاحقاً لاستعادة المنتجات إذا حدثت مشكلة في قاعدة البيانات.
+        </div>
+        <div class="backup-buttons">
+          <button type="button" class="backup-button" id="exportBackupButton" onclick="exportBackup()">📥 تنزيل نسخة احتياطية</button>
+          <button type="button" class="backup-button restore-button" id="restoreBackupButton" onclick="document.getElementById('backupFileInput').click()">📤 استعادة نسخة</button>
+        </div>
+        <input type="file" id="backupFileInput" accept="application/json,.json" style="display:none">
+      </div>
+
       <div id="adminProducts" class="admin-products"></div>
     </section>
 
@@ -715,6 +763,7 @@
       addDoc,
       updateDoc,
       deleteDoc,
+      setDoc,
       doc,
       serverTimestamp,
       query,
@@ -741,6 +790,7 @@
       addDoc,
       updateDoc,
       deleteDoc,
+      setDoc,
       doc,
       serverTimestamp,
       query,
@@ -773,8 +823,10 @@
     const passwordError = document.getElementById("passwordError");
     const productImagesInput = document.getElementById("productImages");
     const imagePreview = document.getElementById("imagePreview");
+    const backupFileInput = document.getElementById("backupFileInput");
 
     productImagesInput.addEventListener("change", handleImageSelection);
+    backupFileInput.addEventListener("change", handleBackupFileSelection);
 
     logo.addEventListener("click", function () {
       logoClicks++;
@@ -1181,6 +1233,169 @@
         encodeURIComponent(message);
 
       window.open(url, "_blank");
+    }
+
+
+    async function exportBackup() {
+      const button = document.getElementById("exportBackupButton");
+      const originalText = button.textContent;
+
+      try {
+        button.disabled = true;
+        button.textContent = "جاري تجهيز النسخة...";
+
+        await window.firebaseReady;
+
+        if (!window.firebaseDb || !window.firebaseFirestore) {
+          throw new Error("Firebase غير جاهز.");
+        }
+
+        // نقرأ أحدث نسخة مباشرة من Firestore لضمان أن النسخة الاحتياطية
+        // تحتوي على البيانات الموجودة فعلياً في قاعدة البيانات.
+        const snapshot = await withTimeout(
+          window.firebaseFirestore.getDocs(window.firebaseProductsCollection),
+          15000
+        );
+
+        const backupProducts = snapshot.docs.map(function (productDoc) {
+          const data = productDoc.data() || {};
+
+          return {
+            id: productDoc.id,
+            name: data.name || "",
+            price: typeof data.price === "number" ? data.price : Number(data.price || 0),
+            images: Array.isArray(data.images) ? data.images : []
+          };
+        });
+
+        const backup = {
+          backupVersion: 1,
+          project: "World in Jar",
+          collection: "products",
+          createdAt: new Date().toISOString(),
+          productCount: backupProducts.length,
+          products: backupProducts
+        };
+
+        const json = JSON.stringify(backup);
+        const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const date = new Date().toISOString().slice(0, 10);
+
+        link.href = url;
+        link.download = "world-in-jar-backup-" + date + ".json";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+
+        alert(
+          "تم تنزيل النسخة الاحتياطية بنجاح.\n\n" +
+          "عدد المنتجات: " + backupProducts.length + "\n" +
+          "احفظ الملف في مكان آمن."
+        );
+      } catch (error) {
+        console.error("Backup export error:", error);
+        alert(
+          "لم يتم إنشاء النسخة الاحتياطية.\n\n" +
+          firebaseErrorMessage(error)
+        );
+      } finally {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+
+    async function handleBackupFileSelection(event) {
+      const input = event.target;
+      const file = input.files && input.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      // إعادة ضبط الحقل حتى يمكن اختيار نفس الملف مرة أخرى لاحقاً.
+      input.value = "";
+
+      if (!window.confirm(
+        "سيتم استعادة المنتجات الموجودة في ملف النسخة الاحتياطية إلى Firestore.\n\n" +
+        "المنتجات ذات نفس المعرّف سيتم تحديثها، ولن يتم حذف المنتجات الأخرى الموجودة حالياً.\n\n" +
+        "هل تريد المتابعة؟"
+      )) {
+        return;
+      }
+
+      const restoreButton = document.getElementById("restoreBackupButton");
+      const originalText = restoreButton.textContent;
+
+      try {
+        restoreButton.disabled = true;
+        restoreButton.textContent = "جاري الاستعادة...";
+
+        const text = await file.text();
+        const backup = JSON.parse(text);
+
+        if (!backup || backup.backupVersion !== 1 || !Array.isArray(backup.products)) {
+          throw new Error("ملف النسخة الاحتياطية غير صالح أو غير مدعوم.");
+        }
+
+        if (backup.collection !== "products") {
+          throw new Error("هذا الملف ليس نسخة احتياطية لمنتجات World in Jar.");
+        }
+
+        await window.firebaseReady;
+
+        if (!window.firebaseDb || !window.firebaseFirestore) {
+          throw new Error("Firebase غير جاهز.");
+        }
+
+        let restored = 0;
+
+        for (const product of backup.products) {
+          const productId = String(product.id || "").trim();
+          const name = String(product.name || "").trim();
+          const price = Number(product.price);
+          const images = Array.isArray(product.images) ? product.images : [];
+
+          if (!productId || !name || !Number.isFinite(price)) {
+            continue;
+          }
+
+          const productRef = window.firebaseFirestore.doc(
+            window.firebaseDb,
+            "products",
+            productId
+          );
+
+          await window.firebaseFirestore.setDoc(
+            productRef,
+            {
+              name: name,
+              price: price,
+              images: images,
+              updatedAt: window.firebaseFirestore.serverTimestamp()
+            },
+            { merge: true }
+          );
+
+          restored++;
+        }
+
+        alert(
+          "تمت استعادة النسخة الاحتياطية بنجاح.\n\n" +
+          "تمت استعادة: " + restored + " منتج."
+        );
+      } catch (error) {
+        console.error("Backup restore error:", error);
+        alert(
+          "لم تتم استعادة النسخة الاحتياطية.\n\n" +
+          (error && error.message ? error.message : firebaseErrorMessage(error))
+        );
+      } finally {
+        restoreButton.disabled = false;
+        restoreButton.textContent = originalText;
+      }
     }
 
     function renderAdminProducts() {
