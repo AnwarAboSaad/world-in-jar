@@ -519,6 +519,49 @@
     </div>
   </div>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
+      serverTimestamp,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAL8UEtaBWJ1WMlUvxfhkgcN1nDWKryyNM",
+      authDomain: "world-in-jar.firebaseapp.com",
+      projectId: "world-in-jar",
+      storageBucket: "world-in-jar.firebasestorage.app",
+      messagingSenderId: "602450490126",
+      appId: "1:602450490126:web:bcc5222115d7d01e9b1d5f"
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const firebaseDb = getFirestore(firebaseApp);
+
+    window.firebaseDb = firebaseDb;
+    window.firebaseProductsCollection = collection(firebaseDb, "products");
+    window.firebaseFirestore = {
+      getDocs,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
+      serverTimestamp,
+      query,
+      orderBy
+    };
+
+    window.firebaseReady = Promise.resolve();
+  </script>
+
   <script>
     const ADMIN_PASSWORD = "1100";
 
@@ -634,6 +677,36 @@
       }
     }
 
+    async function loadProducts() {
+      try {
+        await window.firebaseReady;
+
+        const snapshot = await window.firebaseFirestore.getDocs(
+          window.firebaseProductsCollection
+        );
+
+        products = snapshot.docs.map(function (productDoc) {
+          const data = productDoc.data();
+          return {
+            id: productDoc.id,
+            name: data.name || "",
+            price: Number(data.price || 0),
+            images: Array.isArray(data.images) ? data.images : [],
+            galleryIndex: 0
+          };
+        });
+
+        renderProducts();
+        if (adminOpen) {
+          renderAdminProducts();
+        }
+      } catch (error) {
+        console.error("Firebase load error:", error);
+        products = [];
+        renderProducts();
+      }
+    }
+
     function renderProducts() {
       const grid = document.getElementById("productsGrid");
       grid.innerHTML = "";
@@ -664,8 +737,8 @@
                 alt="${escapeHTML(product.name)}"
               >
               ${images.length > 1 ? `
-                <button class="gallery-arrow gallery-prev" onclick="changeGallery(${product.id}, -1)" aria-label="الصورة السابقة">›</button>
-                <button class="gallery-arrow gallery-next" onclick="changeGallery(${product.id}, 1)" aria-label="الصورة التالية">‹</button>
+                <button class="gallery-arrow gallery-prev" onclick="changeGallery(${JSON.stringify(String(product.id))}, -1)" aria-label="الصورة السابقة">›</button>
+                <button class="gallery-arrow gallery-next" onclick="changeGallery(${JSON.stringify(String(product.id))}, 1)" aria-label="الصورة التالية">‹</button>
                 <div class="gallery-counter" id="counter-${product.id}">1 / ${images.length}</div>
               ` : ""}
             </div>
@@ -679,7 +752,7 @@
           <div class="product-info">
             <h3 class="product-name">${escapeHTML(product.name)}</h3>
             <div class="product-price">${escapeHTML(String(product.price))} $</div>
-            <button class="whatsapp-button" onclick="orderOnWhatsApp(${product.id})">
+            <button class="whatsapp-button" onclick="orderOnWhatsApp(${JSON.stringify(String(product.id))})">
               طلب عبر WhatsApp
             </button>
           </div>
@@ -691,7 +764,7 @@
 
     function changeGallery(productId, direction) {
       const product = products.find(function (item) {
-        return item.id === productId;
+        return String(item.id) === String(productId);
       });
 
       if (!product || !Array.isArray(product.images) || product.images.length < 2) {
@@ -728,7 +801,7 @@
 
     function orderOnWhatsApp(productId) {
       const product = products.find(function (item) {
-        return item.id === productId;
+        return String(item.id) === String(productId);
       });
 
       if (!product) return;
@@ -768,8 +841,8 @@
             </div>
           </div>
           <div class="admin-product-actions">
-            <button class="edit-button" onclick="editProduct(${product.id})">تعديل</button>
-            <button class="delete-button" onclick="deleteProduct(${product.id})">حذف</button>
+            <button class="edit-button" onclick="editProduct(${JSON.stringify(String(product.id))})">تعديل</button>
+            <button class="delete-button" onclick="deleteProduct(${JSON.stringify(String(product.id))})">حذف</button>
           </div>
         `;
 
@@ -777,7 +850,7 @@
       });
     }
 
-    function saveProduct() {
+    async function saveProduct() {
       const name = document.getElementById("productName").value.trim();
       const price = document.getElementById("productPrice").value;
 
@@ -791,33 +864,48 @@
         return;
       }
 
-      if (editingProductId !== null) {
-        const product = products.find(function (item) {
-          return item.id === editingProductId;
-        });
+      const button = document.getElementById("saveProductButton");
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = "جاري الحفظ...";
 
-        if (product) {
-          product.name = name;
-          product.price = Number(price);
-          product.images = selectedImages.slice();
-          product.galleryIndex = 0;
-        }
+      try {
+        await window.firebaseReady;
 
-        editingProductId = null;
-        document.getElementById("saveProductButton").textContent = "إضافة المنتج";
-      } else {
-        products.push({
-          id: Date.now(),
+        const productData = {
           name: name,
           price: Number(price),
           images: selectedImages.slice(),
-          galleryIndex: 0
-        });
-      }
+          updatedAt: window.firebaseFirestore.serverTimestamp()
+        };
 
-      clearProductForm();
-      renderProducts();
-      renderAdminProducts();
+        if (editingProductId !== null) {
+          const productRef = window.firebaseFirestore.doc(
+            window.firebaseDb,
+            "products",
+            String(editingProductId)
+          );
+
+          await window.firebaseFirestore.updateDoc(productRef, productData);
+        } else {
+          productData.createdAt = window.firebaseFirestore.serverTimestamp();
+          await window.firebaseFirestore.addDoc(
+            window.firebaseProductsCollection,
+            productData
+          );
+        }
+
+        await loadProducts();
+        editingProductId = null;
+        clearProductForm();
+        button.textContent = "إضافة المنتج";
+      } catch (error) {
+        console.error("Firebase save error:", error);
+        alert("لم يتم حفظ المنتج. تأكد من تفعيل Cloud Firestore وقواعد الأمان.");
+        button.textContent = originalText;
+      } finally {
+        button.disabled = false;
+      }
     }
 
     function handleImageSelection(event) {
@@ -893,7 +981,7 @@
 
     function editProduct(id) {
       const product = products.find(function (item) {
-        return item.id === id;
+        return String(item.id) === String(id);
       });
 
       if (!product) return;
@@ -913,24 +1001,32 @@
       document.getElementById("productName").focus();
     }
 
-    function deleteProduct(id) {
+    async function deleteProduct(id) {
       const product = products.find(function (item) {
-        return item.id === id;
+        return String(item.id) === String(id);
       });
 
       if (!product) return;
 
       if (!confirm("هل أنت متأكد من حذف المنتج؟")) return;
 
-      products = products.filter(function (item) {
-        return item.id !== id;
-      });
+      try {
+        await window.firebaseReady;
+        const productRef = window.firebaseFirestore.doc(
+          window.firebaseDb,
+          "products",
+          String(id)
+        );
 
-      renderProducts();
-      renderAdminProducts();
+        await window.firebaseFirestore.deleteDoc(productRef);
+        await loadProducts();
 
-      if (editingProductId === id) {
-        cancelEdit();
+        if (String(editingProductId) === String(id)) {
+          cancelEdit();
+        }
+      } catch (error) {
+        console.error("Firebase delete error:", error);
+        alert("لم يتم حذف المنتج. تأكد من اتصال الموقع بقاعدة البيانات.");
       }
     }
 
@@ -972,6 +1068,7 @@
     }
 
     renderProducts();
+    loadProducts();
   </script>
 </body>
 </html>
