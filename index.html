@@ -762,7 +762,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
     import {
-      getFirestore,
+      initializeFirestore,
       collection,
       getDocs,
       onSnapshot,
@@ -786,7 +786,9 @@
     };
 
     const firebaseApp = initializeApp(firebaseConfig);
-    const firebaseDb = getFirestore(firebaseApp);
+    const firebaseDb = initializeFirestore(firebaseApp, {
+      experimentalForceLongPolling: true
+    });
 
     window.firebaseDb = firebaseDb;
     window.firebaseProductsCollection = collection(firebaseDb, "products");
@@ -1472,12 +1474,12 @@
         return "تم رفض العملية من Firebase. يجب تعديل Firestore Security Rules للسماح بالحفظ.";
       }
 
-      if (code.includes("failed-precondition") || message.toLowerCase().includes("database")) {
+      if (code.includes("failed-precondition")) {
         return "قاعدة Firestore غير مفعّلة أو لم يتم إنشاؤها بعد. افتح Firebase > Build > Firestore Database وأنشئ قاعدة البيانات.";
       }
 
-      if (code.includes("unavailable") || message.toLowerCase().includes("offline")) {
-        return "تعذر الاتصال بـ Firebase. تحقق من الإنترنت ثم أعد المحاولة.";
+      if (code.includes("unavailable") || message.toLowerCase().includes("offline") || code.includes("deadline-exceeded") || code.includes("firebase-timeout")) {
+        return "تعذر الاتصال بـ Firebase أو انتهت مهلة الاتصال. تحقق من الإنترنت ثم أعد المحاولة.";
       }
 
       if (message) {
