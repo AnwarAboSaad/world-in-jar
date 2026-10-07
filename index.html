@@ -675,7 +675,13 @@
         <input type="text" id="productName" placeholder="مثال: Terrarium صغير">
 
         <label for="productPrice">السعر</label>
-        <input type="number" id="productPrice" placeholder="مثال: 25" min="0" step="0.01">
+        <div style="display:flex;gap:8px;align-items:stretch;">
+          <input type="number" id="productPrice" placeholder="مثال: 25" min="0" step="0.01" style="flex:1;">
+          <select id="productCurrency" aria-label="العملة" style="width:120px;">
+            <option value="USD">$ دولار</option>
+            <option value="SYP">ل.س ليرة سورية</option>
+          </select>
+        </div>
 
         <label for="productImages">صور المنتج</label>
         <input
@@ -935,6 +941,7 @@
                 id: productDoc.id,
                 name: data.name || "",
                 price: Number(data.price || 0),
+                currency: data.currency === "SYP" ? "SYP" : "USD",
                 images: Array.isArray(data.images) ? data.images : [],
                 galleryIndex: 0
               };
@@ -963,6 +970,14 @@
         products = [];
         renderProducts();
       }
+    }
+
+    function currencyLabel(currency) {
+      return currency === "SYP" ? "ل.س" : "$";
+    }
+
+    function formatPrice(product) {
+      return String(product.price) + " " + currencyLabel(product.currency);
     }
 
     function renderProducts() {
@@ -1009,7 +1024,7 @@
           ${imageHTML}
           <div class="product-info">
             <h3 class="product-name">${escapeHTML(product.name)}</h3>
-            <div class="product-price">${escapeHTML(String(product.price))} $</div>
+            <div class="product-price">${escapeHTML(formatPrice(product))}</div>
           </div>
         `;
 
@@ -1088,7 +1103,7 @@
       const whatsapp = document.getElementById("detailWhatsAppButton");
 
       name.textContent = product.name;
-      price.textContent = String(product.price) + " $";
+      price.textContent = formatPrice(product);
 
       const images = Array.isArray(product.images) ? product.images : [];
 
@@ -1105,7 +1120,7 @@
         "مرحباً 👋\n\n" +
         "أريد أن أطلب المنتج:\n\n" +
         "🌿 المنتج: " + product.name + "\n" +
-        "💰 السعر: " + String(product.price) + " $\n\n" +
+        "💰 السعر: " + formatPrice(product) + "\n\n" +
         "📷 صور المنتج:\n" +
         productUrl.toString() + "\n\n" +
         "شكراً لكم 🤍";
@@ -1264,6 +1279,7 @@
             id: productDoc.id,
             name: data.name || "",
             price: typeof data.price === "number" ? data.price : Number(data.price || 0),
+            currency: data.currency === "SYP" ? "SYP" : "USD",
             images: Array.isArray(data.images) ? data.images : []
           };
         });
@@ -1356,6 +1372,7 @@
           const productId = String(product.id || "").trim();
           const name = String(product.name || "").trim();
           const price = Number(product.price);
+          const currency = product.currency === "SYP" ? "SYP" : "USD";
           const images = Array.isArray(product.images) ? product.images : [];
 
           if (!productId || !name || !Number.isFinite(price)) {
@@ -1373,6 +1390,7 @@
             {
               name: name,
               price: price,
+              currency: currency,
               images: images,
               updatedAt: window.firebaseFirestore.serverTimestamp()
             },
@@ -1416,7 +1434,7 @@
         item.innerHTML = `
           <div class="admin-product-info">
             <div class="admin-product-name">${escapeHTML(product.name)}</div>
-            <div class="admin-product-price">${escapeHTML(String(product.price))} $</div>
+            <div class="admin-product-price">${escapeHTML(formatPrice(product))}</div>
             <div class="admin-image-count">
               ${images.length} ${images.length === 1 ? "صورة" : "صور"}
             </div>
@@ -1485,6 +1503,7 @@
     async function saveProduct() {
       const name = document.getElementById("productName").value.trim();
       const price = document.getElementById("productPrice").value;
+      const currency = document.getElementById("productCurrency").value === "SYP" ? "SYP" : "USD";
 
       if (!name) {
         alert("يرجى إدخال اسم المنتج.");
@@ -1507,6 +1526,7 @@
         const productData = {
           name: name,
           price: Number(price),
+          currency: currency,
           images: selectedImages.slice(),
           updatedAt: window.firebaseFirestore.serverTimestamp()
         };
@@ -1712,6 +1732,7 @@
 
       document.getElementById("productName").value = product.name;
       document.getElementById("productPrice").value = product.price;
+      document.getElementById("productCurrency").value = product.currency === "SYP" ? "SYP" : "USD";
 
       selectedImages = Array.isArray(product.images)
         ? product.images.slice()
@@ -1810,6 +1831,7 @@
     function clearProductForm() {
       document.getElementById("productName").value = "";
       document.getElementById("productPrice").value = "";
+      document.getElementById("productCurrency").value = "USD";
       productImagesInput.value = "";
       selectedImages = [];
       renderImagePreview();
