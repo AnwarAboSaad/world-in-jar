@@ -687,7 +687,7 @@
         <input
           type="file"
           id="productImages"
-          accept="image/*"
+          accept="image/*,.heic,.heif,.jpg,.jpeg,.png,.webp"
           multiple
         >
         <div style="color:var(--brown);font-size:12px;line-height:1.6;">
@@ -759,7 +759,8 @@
     </div>
   </div>
 
-  <script type="module">
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
     import {
       getFirestore,
@@ -1608,7 +1609,7 @@
           productImagesInput.value = "";
 
           if (error && error.code === "unsupported-image") {
-            alert("هذه الصورة بصيغة غير مدعومة من المتصفح. اختر صورة JPG أو PNG ثم جرّب مرة أخرى.");
+            alert("تعذر قراءة الصورة. إذا كانت من الهاتف بصيغة HEIC/HEIF سيتم تحويلها تلقائياً. جرّب اختيار الصورة مرة أخرى، أو اختر JPG/PNG.");
           } else {
             alert("حدث خطأ أثناء تجهيز إحدى الصور. جرّب صورة أخرى أو صورة JPG/PNG.");
           }
@@ -1619,8 +1620,51 @@
     // نحاول أولاً استخدام createImageBitmap لأنه يتعامل بشكل أفضل مع صور الهاتف،
     // ثم نستخدم Image كطريقة احتياطية للمتصفحات التي لا تدعمه.
     function compressImageForFirestore(file) {
-      return new Promise(function (resolve, reject) {
-        if (!file || !file.type || !file.type.startsWith("image/")) {
+      return new Promise(async function (resolve, reject) {
+        if (!file) {
+          const error = new Error("الملف ليس صورة.");
+          error.code = "unsupported-image";
+          reject(error);
+          return;
+        }
+
+        // بعض هواتف Android تختار الصور بصيغة HEIC/HEIF من المعرض.
+        // نحوّلها أولاً إلى JPEG إذا كانت كذلك.
+        const fileName = String(file.name || "").toLowerCase();
+        const fileType = String(file.type || "").toLowerCase();
+        const isHeic =
+          fileType === "image/heic" ||
+          fileType === "image/heif" ||
+          fileName.endsWith(".heic") ||
+          fileName.endsWith(".heif");
+
+        if (isHeic) {
+          try {
+            if (typeof window.heic2any !== "function") {
+              throw new Error("HEIC decoder غير متوفر.");
+            }
+
+            const converted = await window.heic2any({
+              blob: file,
+              toType: "image/jpeg",
+              quality: 0.9
+            });
+
+            const convertedBlob = Array.isArray(converted) ? converted[0] : converted;
+            file = new File(
+              [convertedBlob],
+              (file.name || "image").replace(/\.(heic|heif)$/i, ".jpg"),
+              { type: "image/jpeg" }
+            );
+          } catch (error) {
+            const heicError = new Error("تعذر تحويل صورة HEIC/HEIF.");
+            heicError.code = "unsupported-image";
+            reject(heicError);
+            return;
+          }
+        }
+
+        if (!String(file.type || "").startsWith("image/")) {
           const error = new Error("الملف ليس صورة.");
           error.code = "unsupported-image";
           reject(error);
